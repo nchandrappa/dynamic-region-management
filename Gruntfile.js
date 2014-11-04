@@ -41,12 +41,26 @@ module.exports = function(grunt) {
         },
         stopLocator: {
           command: 'cd tmp/gemfire && gfsh run --file /vagrant/bin/stopLocator.gfsh'
+        },
+        buildJavaFunctions: {
+          command: 'cd java && ./gradlew build',
+          src: [
+            "java/src/**/*.java",
+            "java/build.gradle",
+          ]
+        },
+        deployJavaFunctions: {
+          command: 'cd tmp/gemfire && gfsh run --file /vagrant/bin/deployJavaFunctions.gfsh',
+          src: [
+            'java/build/libs/java.jar'
+          ]
         }
       },
     }
   );
 
   grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-newer');
 
   grunt.registerTask('server1:start', ['locator:ensure', 'shell:startServer1']);
   grunt.registerTask('server1:stop', ['shell:stopServer1']);
@@ -67,4 +81,10 @@ module.exports = function(grunt) {
   grunt.registerTask('locator:stop', ['servers:stop', 'shell:stopLocator']);
   grunt.registerTask('locator:restart', ['locator:stop', 'locator:start', 'servers:start']);
   grunt.registerTask('locator:ensure', ['shell:ensureLocatorRunning']);
+
+  grunt.registerTask('java:build', ['newer:shell:buildJavaFunctions']);
+  grunt.registerTask('java:deploy', ['newer:shell:deployJavaFunctions']);
+  grunt.registerTask('java:ensure', ['java:build', 'java:deploy']);
+
+  grunt.registerTask('setup', ['servers:ensure', 'java:ensure']);
 };

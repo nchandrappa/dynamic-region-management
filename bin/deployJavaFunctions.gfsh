@@ -1,0 +1,2 @@
+connect
+deploy --jar=/vagrant/java/build/libs/java.jar
