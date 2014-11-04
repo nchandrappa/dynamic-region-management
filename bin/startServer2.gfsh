@@ -1,0 +1,8 @@
+connect
+
+start server \
+  --dir=server2 \
+  --log-level=warning \
+  --cache-xml-file=/vagrant/config/server2.xml \
+  --name=server2 \
+  --server-port=40402

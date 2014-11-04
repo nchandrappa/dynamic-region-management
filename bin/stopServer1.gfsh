@@ -1,0 +1,2 @@
+connect
+stop server --name=server1 --dir=server1
