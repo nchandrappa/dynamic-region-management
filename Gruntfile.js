@@ -54,6 +54,9 @@ module.exports = function(grunt) {
           src: [
             'java/build/libs/java.jar'
           ]
+        },
+        jasmine: {
+          command: 'node_modules/.bin/jasmine'
         }
       },
     }
@@ -86,5 +89,10 @@ module.exports = function(grunt) {
   grunt.registerTask('java:deploy', ['newer:shell:deployJavaFunctions']);
   grunt.registerTask('java:ensure', ['java:build', 'java:deploy']);
 
+  grunt.registerTask('jasmine', ['shell:jasmine']);
+
   grunt.registerTask('setup', ['servers:ensure', 'java:ensure']);
+  grunt.registerTask('test', ['jasmine']);
+
+  grunt.registerTask('default', ['setup', 'test']);
 };
