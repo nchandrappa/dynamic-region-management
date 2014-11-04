@@ -1,0 +1,23 @@
+{
+  "name": "adp-dynamic-region-management",
+  "version": "1.0.0",
+  "description": "adp-dynamic-region-management =============================",
+  "main": "index.js",
+  "dependencies": {
+    "gemfire": "^0.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pivotal/adp-dynamic-region-management.git"
+  },
+  "author": "Pivotal Labs, Inc.",
+  "license": "Proprietary",
+  "bugs": {
+    "url": "https://github.com/pivotal/adp-dynamic-region-management/issues"
+  },
+  "homepage": "https://github.com/pivotal/adp-dynamic-region-management"
+}
