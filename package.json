@@ -2,6 +2,7 @@
   "name": "adp-dynamic-region-management",
   "version": "1.0.0",
   "description": "adp-dynamic-region-management =============================",
+  "private": true,
   "main": "index.js",
   "dependencies": {
     "gemfire": "^0.0.4"
