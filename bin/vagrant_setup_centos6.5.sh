@@ -49,7 +49,6 @@ if [ ! -e /opt/pivotal/NativeClient_Linux_64bit_8000_b6169 ]; then
     echo "Then re-run \`vagrant provision\`."
     echo "----------------------------------------------------"
     exit 1
-    exit 1
   fi
   cd /opt/pivotal
   unzip -q /vagrant/tmp/$NATIVE_CLIENT_FILENAME
