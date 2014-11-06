@@ -5,4 +5,5 @@ start server \
   --log-level=warning \
   --cache-xml-file=/vagrant/config/server.xml \
   --name=server1 \
-  --server-port=40401
+  --server-port=40401 \
+  --classpath=/vagrant/java/build/libs/java.jar

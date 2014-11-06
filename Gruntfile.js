@@ -50,7 +50,7 @@ module.exports = function(grunt) {
           ]
         },
         deployJavaFunctions: {
-          command: 'cd tmp/gemfire && gfsh run --file /vagrant/bin/deployJavaFunctions.gfsh',
+          command: 'grunt servers:restart',
           src: [
             'java/build/libs/java.jar'
           ]
@@ -86,12 +86,12 @@ module.exports = function(grunt) {
   grunt.registerTask('locator:ensure', ['shell:ensureLocatorRunning']);
 
   grunt.registerTask('java:build', ['newer:shell:buildJavaFunctions']);
-  grunt.registerTask('java:deploy', ['shell:deployJavaFunctions']);
+  grunt.registerTask('java:deploy', ['newer:shell:deployJavaFunctions']);
   grunt.registerTask('java:ensure', ['java:build', 'java:deploy']);
 
   grunt.registerTask('jasmine', ['shell:jasmine']);
 
-  grunt.registerTask('setup', ['servers:ensure', 'java:ensure']);
+  grunt.registerTask('setup', ['locator:ensure', 'java:ensure', 'servers:ensure']);
   grunt.registerTask('test', ['jasmine']);
 
   grunt.registerTask('default', ['setup', 'test']);
