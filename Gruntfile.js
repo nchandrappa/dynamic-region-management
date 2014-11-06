@@ -43,7 +43,7 @@ module.exports = function(grunt) {
           command: 'cd tmp/gemfire && gfsh run --file /vagrant/bin/stopLocator.gfsh'
         },
         buildJavaFunctions: {
-          command: 'cd java && ./gradlew build',
+          command: 'cd java && ./gradlew clean build',
           src: [
             "java/src/**/*.java",
             "java/build.gradle",
