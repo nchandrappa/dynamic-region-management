@@ -86,7 +86,7 @@ module.exports = function(grunt) {
   grunt.registerTask('locator:ensure', ['shell:ensureLocatorRunning']);
 
   grunt.registerTask('java:build', ['newer:shell:buildJavaFunctions']);
-  grunt.registerTask('java:deploy', ['newer:shell:deployJavaFunctions']);
+  grunt.registerTask('java:deploy', ['shell:deployJavaFunctions']);
   grunt.registerTask('java:ensure', ['java:build', 'java:deploy']);
 
   grunt.registerTask('jasmine', ['shell:jasmine']);
