@@ -36,11 +36,9 @@ public class CreateRegionCacheListener extends CacheListenerAdapter<String,PdxIn
         try {
             Region region = regionFactory.create(regionName);
             logInfo("CreateRegionCacheListener created: " + region);
-            System.out.println("CreateRegionCacheListener created: " + region);
         } catch (RegionExistsException e) {
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
             throw e;
-            // ignore
         }
     }
 
