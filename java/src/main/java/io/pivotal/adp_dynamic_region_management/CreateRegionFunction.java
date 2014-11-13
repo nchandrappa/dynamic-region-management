@@ -30,7 +30,7 @@ public class CreateRegionFunction implements Function, Declarable {
             PdxInstance regionAttributesPdx = (PdxInstance) arguments[1];
 
             // Create or retrieve region
-            Object status = createOrRetrieveRegion(regionName, regionAttributesPdx);
+            boolean status = createOrRetrieveRegion(regionName, regionAttributesPdx);
 
             // Return status
             context.getResultSender().lastResult(status);
@@ -39,7 +39,7 @@ public class CreateRegionFunction implements Function, Declarable {
         }
     }
 
-    private Object createOrRetrieveRegion(String regionName, PdxInstance pdxInstance) throws RuntimeException {
+    private boolean createOrRetrieveRegion(String regionName, PdxInstance pdxInstance) throws RuntimeException {
         Region region = this.cache.getRegion(regionName);
 
         if (region != null) { return false; }
