@@ -13,6 +13,7 @@
     "jasmine": "^2.0.1"
   },
   "devDependencies": {},
+  "bundledDependencies": ["gemfire"],
   "scripts": {
     "test": "grunt setup test"
   },
