@@ -3,7 +3,7 @@
 set -e
 
 GEMFIRE_SERVER_FILENAME="pivotal-gemfire-8.0.0-48398.el6.noarch.rpm"
-NATIVE_CLIENT_FILENAME="Pivotal_GemFire_NativeClient_Linux_64bit_8000_b6169.zip"
+NATIVE_CLIENT_FILENAME="NativeClientPrivate_Nov7_linux64.tar.gz"
 JAVA_RPM_FILENAME="jdk-7u65-linux-x64.rpm"
 JAVA_RPM_URL="http://download.oracle.com/otn-pub/java/jdk/7u65-b17/$JAVA_RPM_FILENAME"
 
@@ -39,19 +39,22 @@ if [ ! -e /usr/bin/gemfire ]; then
   rpm -i --quiet /vagrant/tmp/$GEMFIRE_SERVER_FILENAME
 fi
 
-if [ ! -e /opt/pivotal/NativeClient_Linux_64bit_8000_b6169 ]; then
+mkdir -p /vagrant/java/lib/
+cp -f /opt/pivotal/gemfire/Pivotal_GemFire_800/lib/gemfire.jar /vagrant/java/lib/
+
+if [ ! -e /opt/pivotal/NativeClientPrivate_Nov7_linux64 ]; then
   if [ ! -e /vagrant/tmp/$NATIVE_CLIENT_FILENAME ]; then
     echo "----------------------------------------------------"
-    echo "Please download $NATIVE_CLIENT_FILENAME"
-    echo "from https://network.pivotal.io/products/pivotal-gemfire"
-    echo "(Pivotal GemFire Native Client Linux 64bit v8.0.0.0 - 8.0.0.0)"
+    echo "Please get $NATIVE_CLIENT_FILENAME"
+    echo "from someone at Pivotal"
     echo "and place it in the ./tmp subdirectory of this project"
     echo "Then re-run \`vagrant provision\`."
     echo "----------------------------------------------------"
     exit 1
   fi
   cd /opt/pivotal
-  unzip -q /vagrant/tmp/$NATIVE_CLIENT_FILENAME
+  tar zxf /vagrant/tmp/$NATIVE_CLIENT_FILENAME
+  mv product NativeClientPrivate_Nov7_linux64
 fi
 
 if [ ! -e /usr/bin/javac ]; then
@@ -62,7 +65,7 @@ if [ ! -e /usr/bin/javac ]; then
 fi
 
 sh -c "cat > /etc/profile.d/gfcpp.sh" <<'EOF'
-export GFCPP=/opt/pivotal/NativeClient_Linux_64bit_8000_b6169
+export GFCPP=/opt/pivotal/NativeClientPrivate_Nov7_linux64
 export GEMFIRE=/opt/pivotal/gemfire/Pivotal_GemFire_800
 export JAVA_HOME=/usr/java/default
 export PATH=$GFCPP/bin:/usr/local/bin:$PATH
