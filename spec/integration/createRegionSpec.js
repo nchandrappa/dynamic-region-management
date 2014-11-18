@@ -1,6 +1,9 @@
 const childProcess = require("child_process");
 const async = require("async");
 
+// jmx-manager-update-rate in milliseconds
+const jmxManagerUpdateRate = 2000;
+
 function gfsh(command, callback) {
   childProcess.exec('gfsh -e "connect" -e "' + command + '"', callback);
 }
@@ -22,18 +25,10 @@ feature("Dynamic region creation", function() {
 
     async.series([
 
-      // start by destroying region if present
-      function(next) {
-        gfsh('destroy region --name=' + newRegionName, function(error, stdout, stderr) {
-          expect(error).toBeFalsy();
-          next(error);
-        });
-      },
-
       // show that region does not exist on server1
       function(next) {
         gfsh('list regions --member=server1', function(error, stdout, stderr) {
-          expect(error).toBeFalsy();
+          if(error) { fail(error); }
           expect(stdout).not.toMatch(newRegionName);
           next(error);
         });
@@ -42,7 +37,7 @@ feature("Dynamic region creation", function() {
       // show that region does not exist on server2
       function(next) {
         gfsh("list regions --member=server2", function(error, stdout, stderr) {
-          expect(error).toBeFalsy();
+          if(error) { fail(error); }
           expect(stdout).not.toMatch(newRegionName);
           next(error);
         });
@@ -54,14 +49,14 @@ feature("Dynamic region creation", function() {
 
         cache
           .executeFunction("CreateRegionFunction", [newRegionName, {}])
-            .on("error", function(error) { throw error; })
+            .on("error", function(error) { fail(error); })
             .on("end", next);
       },
 
       // show that region exists on server1
       function(next) {
         gfsh('list regions --member=server1', function(error, stdout, stderr) {
-          expect(error).toBeFalsy();
+          if(error) { fail(error); }
           expect(stdout).toMatch(newRegionName);
           next();
         });
@@ -70,16 +65,88 @@ feature("Dynamic region creation", function() {
       // show that region exists on server2
       function(next) {
         gfsh('list regions --member=server2', function(error, stdout, stderr) {
-          expect(error).toBeFalsy();
+          if(error) { fail(error); }
           expect(stdout).toMatch(newRegionName);
           next();
         });
       },
 
     ], function(error) {
-      if(error) { throw error; }
+      if(error) { fail(error); }
       done();
     });
 
+  });
+
+  scenario("Node client passes a region shortcut for the newly created region to use", function(done){
+    const newRegionName = "newPartitionRegion" + Date.now();
+
+    async.series([
+
+      // show that region does not exist on server1
+      function(next) {
+        gfsh('list regions --member=server1', function(error, stdout, stderr) {
+          if(error) { fail(error); }
+          expect(stdout).not.toMatch(newRegionName);
+          next(error);
+        });
+      },
+
+      // show that region does not exist on server2
+      function(next) {
+        gfsh("list regions --member=server2", function(error, stdout, stderr) {
+          if(error) { fail(error); }
+          expect(stdout).not.toMatch(newRegionName);
+          next(error);
+        });
+      },
+
+      // insert into regionMetadata
+      function(next) {
+        const cache = getCache();
+
+        const regionMetadata = {
+          server: {
+            type: "PARTITION"
+          }
+        };
+
+        cache
+          .executeFunction("CreateRegionFunction", [newRegionName, regionMetadata])
+            .on("error", function(error) { fail(error); })
+            .on("end", next);
+      },
+
+      // show that region exists on server1
+      function(next) {
+        gfsh('list regions --member=server1', function(error, stdout, stderr) {
+          if(error) { fail(error); }
+          expect(stdout).toMatch(newRegionName);
+          next();
+        });
+      },
+
+      // show that region exists on server2
+      function(next) {
+        gfsh('list regions --member=server2', function(error, stdout, stderr) {
+          if(error) { fail(error); }
+          expect(stdout).toMatch(newRegionName);
+          next();
+        });
+      },
+
+      // show that region is PARTITION, not NORMAL
+      function(next) {
+        gfsh('describe region --name=' + newRegionName, function(error, stdout, stderr) {
+          if(error) { fail(error); }
+          expect(stdout).toMatch(/Data Policy.*partition/);
+          next();
+        });
+      }
+
+    ], function(error) {
+      if(error) { fail(error); }
+      done();
+    });
   });
 });

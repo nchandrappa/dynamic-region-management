@@ -27,9 +27,15 @@ public class CreateRegionCacheListener extends CacheListenerAdapter<String,PdxIn
     }
 
     private void createRegion(String regionName, PdxInstance pdxInstance) {
-        RegionFactory regionFactory = this.cache.createRegionFactory();
+        RegionShortcut regionShortcut = getRegionShortcut(pdxInstance);
+        RegionFactory regionFactory;
 
-        // TODO: configure region attributes based on pdxInstance
+        if(regionShortcut != null) {
+            regionFactory = this.cache.createRegionFactory(regionShortcut);
+        } else {
+            regionFactory = this.cache.createRegionFactory();
+        }
+
 
         logInfo("CreateRegionCacheListener creating region named: " + regionName);
 
@@ -40,6 +46,18 @@ public class CreateRegionCacheListener extends CacheListenerAdapter<String,PdxIn
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
             throw e;
         }
+    }
+
+    private RegionShortcut getRegionShortcut(PdxInstance pdxInstance) {
+        PdxInstance serverConfig = (PdxInstance) pdxInstance.getField("server");
+        if(serverConfig == null) {
+            return null;
+        }
+        String serverRegionType = (String) serverConfig.getField("type");
+        if (serverRegionType == null) {
+            return null;
+        }
+        return RegionShortcut.valueOf(serverRegionType);
     }
 
     private void logInfo(String message) {
