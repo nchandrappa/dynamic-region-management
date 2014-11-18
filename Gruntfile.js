@@ -57,6 +57,9 @@ module.exports = function(grunt) {
         },
         jasmine: {
           command: 'node_modules/.bin/jasmine'
+        },
+        junit: {
+          command: 'cd java && ./gradlew test',
         }
       },
     }
@@ -90,9 +93,10 @@ module.exports = function(grunt) {
   grunt.registerTask('java:ensure', ['java:build', 'java:deploy']);
 
   grunt.registerTask('jasmine', ['shell:jasmine']);
+  grunt.registerTask('junit', ['shell:junit']);
 
   grunt.registerTask('setup', ['locator:ensure', 'java:ensure', 'servers:ensure']);
-  grunt.registerTask('test', ['jasmine']);
+  grunt.registerTask('test', ['junit', 'jasmine']);
 
   grunt.registerTask('default', ['setup', 'test']);
 };
