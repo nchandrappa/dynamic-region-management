@@ -1,4 +1,4 @@
 start locator \
   --name=locator \
-  --log-level=warning \
+  --log-level=info \
   --J=-Dgemfire.http-service-port=8080
