@@ -3,7 +3,7 @@ set -e
 
 npm install -g jasmine grunt-cli
 
-NODE_GEMFIRE_FILENAME=node-gemfire-get_values_safely.tar.gz
+NODE_GEMFIRE_FILENAME=node-gemfire-0.0.7-pre.tar.gz
 
 cd /vagrant
 
@@ -19,3 +19,11 @@ fi
 NODE_TLS_REJECT_UNAUTHORIZED=0 npm install /vagrant/tmp/$NODE_GEMFIRE_FILENAME
 
 npm install
+
+echo ""
+echo ""
+echo "Ready to go! Run the following to get started:"
+echo ""
+echo "$ vagrant ssh"
+echo "$ cd /vagrant"
+echo "$ grunt"
