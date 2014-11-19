@@ -9,4 +9,5 @@
     <server host="localhost" port="40402" />
   </pool>
   <pdx read-serialized="true" />
+  <region name="__regionAttributesMetadata" refid="PROXY" />
 </client-cache>

@@ -1,8 +1,8 @@
 const childProcess = require("child_process");
 const async = require("async");
 
-// jmx-manager-update-rate in milliseconds
-const jmxManagerUpdateRate = 2000;
+const cache = require("../../lib/cache");
+const main = require("../../lib/main");
 
 function gfsh(command, callback) {
   childProcess.exec('gfsh -e "connect" -e "' + command + '"', callback);
@@ -18,6 +18,10 @@ feature("Dynamic region creation", function() {
 
   afterEach(function() {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = originalDefaultTimeoutInterval;
+  });
+
+  beforeEach(function(done) {
+    main.init(done);
   });
 
   scenario("Calling a java function creates a region on all Java servers", function(done) {
@@ -45,8 +49,6 @@ feature("Dynamic region creation", function() {
 
       // insert into regionMetadata
       function(next) {
-        const cache = getCache();
-
         cache
           .executeFunction("CreateRegionFunction", [newRegionName, {}])
             .on("error", function(error) { fail(error); })
@@ -103,8 +105,6 @@ feature("Dynamic region creation", function() {
 
       // insert into regionMetadata
       function(next) {
-        const cache = getCache();
-
         const regionMetadata = {
           server: {
             type: "PARTITION"
