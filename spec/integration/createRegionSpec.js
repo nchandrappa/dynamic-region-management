@@ -3,6 +3,9 @@ const async = require("async");
 
 const cache = require("../../lib/cache");
 const main = require("../../lib/main");
+const regionCreator = require("../../lib/regionCreator");
+
+require("../helpers/features.js");
 
 function gfsh(command, callback) {
   childProcess.exec('gfsh -e "connect" -e "' + command + '"', callback);
@@ -55,10 +58,7 @@ feature("Dynamic region creation", function() {
           }
         };
 
-        cache
-          .executeFunction("CreateRegion", [newRegionName, regionOptions])
-            .on("error", fail)
-            .on("end", next);
+        regionCreator.createRegion(newRegionName, regionOptions, next);
       },
 
       // show that region exists on server1
@@ -109,9 +109,9 @@ feature("Dynamic region creation", function() {
         });
       },
 
-      // insert into regionMetadata
+      // create region
       function(next) {
-        const regionMetadata = {
+        const regionOptions = {
           server: {
             type: "PARTITION"
           },
@@ -120,10 +120,7 @@ feature("Dynamic region creation", function() {
           }
         };
 
-        cache
-          .executeFunction("CreateRegion", [newRegionName, regionMetadata])
-            .on("error", fail)
-            .on("end", next);
+        regionCreator.createRegion(newRegionName, regionOptions, next);
       },
 
       // show that region exists on server1

@@ -2,6 +2,7 @@ const async = require("async");
 
 const main = require("../../lib/main");
 const cache = require("../../lib/cache");
+const regionCreator = require("../../lib/regionCreator");
 
 require("../helpers/features.js");
 
@@ -19,11 +20,7 @@ feature("Dynamic region creation in the client", function(){
             type: "PROXY"
           }
         }
-
-        cache
-          .executeFunction("CreateRegion", [newRegionName, regionOptions])
-            .on("error", fail)
-            .on("end", next);
+        regionCreator.createRegion(newRegionName, regionOptions, next);
       },
       function(next) {
         const region = cache.getRegion(newRegionName);
@@ -54,10 +51,7 @@ feature("Dynamic region creation in the client", function(){
           }
         };
 
-        cache
-          .executeFunction("CreateRegion", [newRegionName, regionOptions])
-            .on("error", fail)
-            .on("end", next);
+        regionCreator.createRegion(newRegionName, regionOptions, next);
       },
       function(next) {
         const region = cache.getRegion(newRegionName);
