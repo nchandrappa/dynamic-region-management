@@ -49,9 +49,15 @@ feature("Dynamic region creation", function() {
 
       // insert into regionMetadata
       function(next) {
+        const regionOptions = {
+          client: {
+            type: "PROXY"
+          }
+        };
+
         cache
-          .executeFunction("CreateRegion", [newRegionName, {}])
-            .on("error", function(error) { fail(error); })
+          .executeFunction("CreateRegion", [newRegionName, regionOptions])
+            .on("error", fail)
             .on("end", next);
       },
 
@@ -108,12 +114,15 @@ feature("Dynamic region creation", function() {
         const regionMetadata = {
           server: {
             type: "PARTITION"
+          },
+          client: {
+            type: "PROXY"
           }
         };
 
         cache
           .executeFunction("CreateRegion", [newRegionName, regionMetadata])
-            .on("error", function(error) { fail(error); })
+            .on("error", fail)
             .on("end", next);
       },
 

@@ -27,27 +27,24 @@ public class CreateRegion implements Function, Declarable {
         try {
             Object[] arguments = (Object[]) context.getArguments();
             String regionName = (String) arguments[0];
-            PdxInstance regionAttributesPdx = (PdxInstance) arguments[1];
+            PdxInstance regionOptions = (PdxInstance) arguments[1];
 
-            // Create or retrieve region
-            boolean status = createOrRetrieveRegion(regionName, regionAttributesPdx);
 
-            // Return status
+            boolean status = createOrRetrieveRegion(regionName, regionOptions);
             context.getResultSender().lastResult(status);
         } catch (Exception exception) {
             context.getResultSender().sendException(exception);
         }
     }
 
-    private boolean createOrRetrieveRegion(String regionName, PdxInstance pdxInstance) throws RuntimeException {
+    private boolean createOrRetrieveRegion(String regionName, PdxInstance regionOptions) throws RuntimeException, RegionOptionsInvalidException {
         Region region = this.cache.getRegion(regionName);
 
         if (region != null) { return false; }
 
-        // Put the attributes into the metadata region. The afterCreate call will actually create the region.
-        this.regionAttributesMetadataRegion.put(regionName, pdxInstance);
+        new RegionOptionsValidator(regionOptions).validate();
 
-        // Retrieve the region after creating it
+        this.regionAttributesMetadataRegion.put(regionName, regionOptions);
         region = this.cache.getRegion(regionName);
         if (region == null) {
             throw new RuntimeException("Region was not created for some reason.");
