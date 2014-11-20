@@ -3,7 +3,7 @@ set -e
 
 npm install -g jasmine grunt-cli
 
-NODE_GEMFIRE_FILENAME=node-gemfire-0.0.7-pre.tar.gz
+NODE_GEMFIRE_FILENAME=node-gemfire-master.tar.gz
 
 cd /vagrant
 
