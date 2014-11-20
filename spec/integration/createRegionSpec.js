@@ -50,7 +50,7 @@ feature("Dynamic region creation", function() {
       // insert into regionMetadata
       function(next) {
         cache
-          .executeFunction("CreateRegionFunction", [newRegionName, {}])
+          .executeFunction("CreateRegion", [newRegionName, {}])
             .on("error", function(error) { fail(error); })
             .on("end", next);
       },
@@ -112,7 +112,7 @@ feature("Dynamic region creation", function() {
         };
 
         cache
-          .executeFunction("CreateRegionFunction", [newRegionName, regionMetadata])
+          .executeFunction("CreateRegion", [newRegionName, regionMetadata])
             .on("error", function(error) { fail(error); })
             .on("end", next);
       },

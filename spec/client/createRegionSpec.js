@@ -13,7 +13,7 @@ feature("Dynamic region creation in the client", function(){
       },
       function(next) {
         cache
-          .executeFunction("CreateRegionFunction", [newRegionName, {}])
+          .executeFunction("CreateRegion", [newRegionName, {}])
             .on("error", fail)
             .on("end", next);
       },

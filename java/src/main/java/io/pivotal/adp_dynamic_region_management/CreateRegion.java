@@ -10,7 +10,7 @@ import com.gemstone.gemfire.pdx.PdxInstance;
 
 import java.util.Properties;
 
-public class CreateRegionFunction implements Function, Declarable {
+public class CreateRegion implements Function, Declarable {
 
     private final Cache cache;
 
@@ -18,7 +18,7 @@ public class CreateRegionFunction implements Function, Declarable {
 
     private static final String REGION_ATTRIBUTES_METADATA_REGION = "__regionAttributesMetadata";
 
-    public CreateRegionFunction() {
+    public CreateRegion() {
         this.cache = CacheFactory.getAnyInstance();
         this.regionAttributesMetadataRegion = createRegionAttributesMetadataRegion();
     }

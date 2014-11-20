@@ -14,7 +14,7 @@
   </region>
   <function-service>
     <function>
-      <class-name>io.pivotal.adp_dynamic_region_management.CreateRegionFunction</class-name>
+      <class-name>io.pivotal.adp_dynamic_region_management.CreateRegion</class-name>
     </function>
   </function-service>
 </cache>
