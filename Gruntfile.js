@@ -65,8 +65,8 @@ module.exports = function(grunt) {
       parallel: {
         startServers: {
           tasks: [
-            { grunt: true, args: ['server1:start'] },
-            { grunt: true, args: ['server2:start'] }
+            { grunt: true, args: ['shell:startServer1'] },
+            { grunt: true, args: ['shell:startServer2'] }
           ]
         },
         stopServers: {
@@ -99,7 +99,7 @@ module.exports = function(grunt) {
   grunt.registerTask('server2:restart', ['server2:stop', 'server2:start']);
   grunt.registerTask('server2:ensure', ['locator:ensure', 'shell:ensureServer2Running']);
 
-  grunt.registerTask('servers:start', ['parallel:startServers']);
+  grunt.registerTask('servers:start', ['locator:ensure', 'parallel:startServers']);
   grunt.registerTask('servers:stop', ['parallel:stopServers']);
   grunt.registerTask('servers:restart', ['servers:stop', 'servers:start']);
   grunt.registerTask('servers:ensure', ['parallel:ensureServers']);
