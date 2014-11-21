@@ -19,7 +19,7 @@ public class CreateRegion implements Function, Declarable {
     private static final String REGION_ATTRIBUTES_METADATA_REGION = "__regionAttributesMetadata";
 
     public CreateRegion() {
-        this.cache = CacheFactory.getAnyInstance();
+        this.cache = CacheSingleton.getCache();
         this.regionAttributesMetadataRegion = createRegionAttributesMetadataRegion();
     }
 

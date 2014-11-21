@@ -22,10 +22,7 @@ public class CreateRegionCacheListenerTest {
 
     @BeforeClass
     static public void setUp() throws Exception {
-        CacheFactory cacheFactory = new CacheFactory();
-        cacheFactory.set("locators", "");
-        cacheFactory.set("mcast-port", "0");
-        cache = cacheFactory.create();
+        cache = CacheSingleton.getCache();
     }
 
     @Mock

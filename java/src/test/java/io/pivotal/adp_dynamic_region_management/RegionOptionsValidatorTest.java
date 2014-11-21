@@ -1,6 +1,5 @@
 package io.pivotal.adp_dynamic_region_management;
 
-import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
 import org.junit.BeforeClass;
@@ -15,10 +14,7 @@ public class RegionOptionsValidatorTest {
 
     @BeforeClass
     static public void setUp() throws Exception {
-        CacheFactory cacheFactory = new CacheFactory();
-        cacheFactory.set("locators", "");
-        cacheFactory.set("mcast-port", "0");
-        cacheFactory.create();
+        CacheSingleton.getCache();
     }
 
     @Rule
