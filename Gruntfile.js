@@ -62,11 +62,32 @@ module.exports = function(grunt) {
           command: 'cd java && ./gradlew test',
         }
       },
+      parallel: {
+        startServers: {
+          tasks: [
+            { grunt: true, args: ['server1:start'] },
+            { grunt: true, args: ['server2:start'] }
+          ]
+        },
+        stopServers: {
+          tasks: [
+            { grunt: true, args: ['server1:stop'] },
+            { grunt: true, args: ['server2:stop'] }
+          ]
+        },
+        ensureServers: {
+          tasks: [
+            { grunt: true, args: ['server1:ensure'] },
+            { grunt: true, args: ['server2:ensure'] }
+          ]
+        }
+      }
     }
   );
 
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-newer');
+  grunt.loadNpmTasks('grunt-parallel');
 
   grunt.registerTask('server1:start', ['locator:ensure', 'shell:startServer1']);
   grunt.registerTask('server1:stop', ['shell:stopServer1']);
@@ -78,10 +99,10 @@ module.exports = function(grunt) {
   grunt.registerTask('server2:restart', ['server2:stop', 'server2:start']);
   grunt.registerTask('server2:ensure', ['locator:ensure', 'shell:ensureServer2Running']);
 
-  grunt.registerTask('servers:start', ['server1:start', 'server2:start']);
-  grunt.registerTask('servers:stop', ['server1:stop', 'server2:stop']);
+  grunt.registerTask('servers:start', ['parallel:startServers']);
+  grunt.registerTask('servers:stop', ['parallel:stopServers']);
   grunt.registerTask('servers:restart', ['servers:stop', 'servers:start']);
-  grunt.registerTask('servers:ensure', ['server1:ensure', 'server2:ensure']);
+  grunt.registerTask('servers:ensure', ['parallel:ensureServers']);
 
   grunt.registerTask('locator:start', ['shell:startLocator']);
   grunt.registerTask('locator:stop', ['servers:stop', 'shell:stopLocator']);
