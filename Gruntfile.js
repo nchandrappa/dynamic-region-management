@@ -92,11 +92,11 @@ module.exports = function(grunt) {
   grunt.registerTask('java:deploy', ['newer:shell:deployJavaFunctions']);
   grunt.registerTask('java:ensure', ['java:build', 'java:deploy']);
 
-  grunt.registerTask('jasmine', ['shell:jasmine']);
-  grunt.registerTask('junit', ['shell:junit']);
-
   grunt.registerTask('setup', ['locator:ensure', 'java:ensure', 'servers:ensure']);
-  grunt.registerTask('test', ['junit', 'jasmine']);
 
-  grunt.registerTask('default', ['setup', 'test']);
+  grunt.registerTask('jasmine', ['setup', 'shell:jasmine']);
+  grunt.registerTask('junit', ['shell:junit']);
+  grunt.registerTask('test', ['jasmine']);
+
+  grunt.registerTask('default', ['test']);
 };
