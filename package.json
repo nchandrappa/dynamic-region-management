@@ -10,10 +10,13 @@
     "grunt": "^0.4.5",
     "grunt-newer": "^0.8.0",
     "grunt-shell": "^1.1.1",
-    "jasmine": "^2.0.1"
+    "jasmine": "^2.0.1",
+    "lodash": "^2.4.1"
   },
   "devDependencies": {},
-  "bundledDependencies": ["gemfire"],
+  "bundledDependencies": [
+    "gemfire"
+  ],
   "scripts": {
     "test": "grunt setup test"
   },
