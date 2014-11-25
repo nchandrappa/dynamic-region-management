@@ -8,6 +8,7 @@ import com.gemstone.gemfire.cache.execute.Function;
 import com.gemstone.gemfire.cache.execute.FunctionContext;
 import com.gemstone.gemfire.pdx.PdxInstance;
 
+import java.util.List;
 import java.util.Properties;
 
 public class CreateRegion implements Function, Declarable {
@@ -25,10 +26,9 @@ public class CreateRegion implements Function, Declarable {
 
     public void execute(FunctionContext context) {
         try {
-            Object[] arguments = (Object[]) context.getArguments();
-            String regionName = (String) arguments[0];
-            PdxInstance regionOptions = (PdxInstance) arguments[1];
-
+            List arguments = (List) context.getArguments();
+            String regionName = (String) arguments.get(0);
+            PdxInstance regionOptions = (PdxInstance) arguments.get(1);
 
             boolean status = createOrRetrieveRegion(regionName, regionOptions);
             context.getResultSender().lastResult(status);
