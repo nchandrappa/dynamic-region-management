@@ -22,6 +22,10 @@ public class RegionOptionsValidator {
             throw new RegionOptionsInvalidException("Invalid region options. Expected client.type to be defined.");
         }
 
+        PdxInstance serverOptions = (PdxInstance) regionOptions.getField("server");
+        RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions);
+        regionOptionsFactory.validate();
+
         return true;
     }
 }

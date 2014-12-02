@@ -12,7 +12,7 @@ public class CreateRegionCacheListener extends CacheListenerAdapter<String,PdxIn
     private Cache cache;
 
     public CreateRegionCacheListener() {
-        this.cache = CacheSingleton.getCache();
+        this.cache = CacheFactory.getAnyInstance();
     }
 
     public void afterCreate(EntryEvent<String,PdxInstance> event) {

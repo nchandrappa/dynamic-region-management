@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE cache PUBLIC
+        "-//GemStone Systems, Inc.//GemFire Declarative Caching 8.0//EN"
+        "http://www.gemstone.com/dtd/cache8_0.dtd">
+
+<cache>
+    <disk-store name="bob" >
+        <disk-dirs>
+            <disk-dir>/vagrant/tmp/javaTestDiskStore</disk-dir>
+        </disk-dirs>
+    </disk-store>
+    <disk-store name="DEFAULT" >
+        <disk-dirs>
+            <disk-dir>/vagrant/tmp/javaTestDiskStore</disk-dir>
+        </disk-dirs>
+    </disk-store>
+    <pdx read-serialized="true" />
+</cache>

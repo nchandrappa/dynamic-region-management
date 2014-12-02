@@ -4,7 +4,8 @@
   "http://www.gemstone.com/dtd/cache8_0.dtd">
 
 <cache>
-  <pdx read-serialized="true" />
+  <disk-store name="myDiskStore" />
+  <pdx read-serialized="true" persistent="true"/>
   <region name="__regionAttributesMetadata" refid="REPLICATE">
     <region-attributes>
       <cache-listener>

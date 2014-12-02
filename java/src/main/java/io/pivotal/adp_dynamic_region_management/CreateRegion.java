@@ -20,7 +20,7 @@ public class CreateRegion implements Function, Declarable {
     private static final String REGION_ATTRIBUTES_METADATA_REGION = "__regionAttributesMetadata";
 
     public CreateRegion() {
-        this.cache = CacheSingleton.getCache();
+        this.cache = CacheFactory.getAnyInstance();
         this.regionAttributesMetadataRegion = createRegionAttributesMetadataRegion();
     }
 
@@ -45,6 +45,9 @@ public class CreateRegion implements Function, Declarable {
         new RegionOptionsValidator(regionOptions).validate();
 
         this.regionAttributesMetadataRegion.put(regionName, regionOptions);
+
+        // the CreateRegionCacheListener should fire synchronously for the previous put
+
         region = this.cache.getRegion(regionName);
         if (region == null) {
             throw new RuntimeException("Region was not created for some reason.");
