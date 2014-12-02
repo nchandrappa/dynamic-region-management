@@ -9,7 +9,7 @@
   <region name="__regionAttributesMetadata" refid="REPLICATE">
     <region-attributes>
       <cache-listener>
-        <class-name>io.pivotal.adp_dynamic_region_management.CreateRegionCacheListener</class-name>
+        <class-name>io.pivotal.adp_dynamic_region_management.MetadataRegionCacheListener</class-name>
       </cache-listener>
     </region-attributes>
   </region>
