@@ -172,7 +172,7 @@ feature("Dynamic region creation", function() {
   //  used for a given region.
   xscenario("Node client passes diskSynchronous for the newly created region to use");
 
-  function createAndDescribeRegion(newRegionName, regionOptions, callback, done) {
+  function createAndDescribeRegion(newRegionName, regionOptions, callback) {
     async.series([
 
       // show that region does not exist on server1
@@ -220,15 +220,11 @@ feature("Dynamic region creation", function() {
       function(next) {
         gfsh('describe region --name=' + newRegionName, function(error, stdout, stderr) {
           if(error) { fail(error); }
-          callback(stdout);
-          next();
+          next(null, stdout);
         });
       }
 
-    ], function(error) {
-      if(error) { fail(error); }
-      done();
-    });
+    ], callback);
   }
 
   scenario("Node client passes region attributes for the newly created region to use", function(done){
@@ -258,20 +254,26 @@ feature("Dynamic region creation", function() {
       }
     };
 
-    createAndDescribeRegion(newRegionName, regionOptions, function(stdout) {
-      expect(stdout).toMatch(/concurrency-level.*10/);
-      expect(stdout).toMatch(/Data Policy.*persistent replicate/);
-      expect(stdout).toMatch(/enable-async-conflation.*true/);
-      expect(stdout).toMatch(/enable-subscription-conflation.*true/);
-      expect(stdout).toMatch(/ignore-jta.*true/);
-      expect(stdout).toMatch(/index-maintenance-synchronous.*false/);
-      expect(stdout).toMatch(/initial-capacity.*100/);
-      expect(stdout).toMatch(/is-lock-grantor.*true/); // also tells us scope is global
-      expect(stdout).toMatch(/load-factor.*0.5/);
-      expect(stdout).toMatch(/multicast-enabled.*true/);
-      expect(stdout).toMatch(/statistics-enabled.*true/);
-      expect(stdout).toMatch(/cloning-enabled.*true/);
-    }, done);
+    createAndDescribeRegion(newRegionName, regionOptions, function(error, stdout) {
+      if(error) {
+        fail(error);
+      } else {
+        expect(stdout).toMatch(/concurrency-level.*10/);
+        expect(stdout).toMatch(/Data Policy.*persistent replicate/);
+        expect(stdout).toMatch(/enable-async-conflation.*true/);
+        expect(stdout).toMatch(/enable-subscription-conflation.*true/);
+        expect(stdout).toMatch(/ignore-jta.*true/);
+        expect(stdout).toMatch(/index-maintenance-synchronous.*false/);
+        expect(stdout).toMatch(/initial-capacity.*100/);
+        expect(stdout).toMatch(/is-lock-grantor.*true/); // also tells us scope is global
+        expect(stdout).toMatch(/load-factor.*0.5/);
+        expect(stdout).toMatch(/multicast-enabled.*true/);
+        expect(stdout).toMatch(/statistics-enabled.*true/);
+        expect(stdout).toMatch(/cloning-enabled.*true/);
+      }
+
+      done();
+    });
   });
 
   scenario("Node client configures concurrencyChecksEnabled", function(done){
@@ -286,8 +288,10 @@ feature("Dynamic region creation", function() {
       }
     };
 
-    createAndDescribeRegion(newRegionName, regionOptions, function(stdout) {
+    createAndDescribeRegion(newRegionName, regionOptions, function(error, stdout) {
+      if(error) { fail(error); }
       expect(stdout).toMatch(/concurrency-checks-enabled.*false/);
-    }, done);
+      done();
+    });
   });
 });

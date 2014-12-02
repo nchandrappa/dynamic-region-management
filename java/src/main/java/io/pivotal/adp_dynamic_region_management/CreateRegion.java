@@ -15,13 +15,11 @@ public class CreateRegion implements Function, Declarable {
 
     private final Cache cache;
 
-    private final Region<String,PdxInstance> regionAttributesMetadataRegion;
-
-    private static final String REGION_ATTRIBUTES_METADATA_REGION = "__regionAttributesMetadata";
+    protected final Region<String,PdxInstance> regionAttributesMetadataRegion;
 
     public CreateRegion() {
         this.cache = CacheFactory.getAnyInstance();
-        this.regionAttributesMetadataRegion = createRegionAttributesMetadataRegion();
+        this.regionAttributesMetadataRegion = MetadataRegion.getMetadataRegion();
     }
 
     public void execute(FunctionContext context) {
@@ -54,18 +52,6 @@ public class CreateRegion implements Function, Declarable {
         }
 
         return true;
-    }
-
-    private Region<String,PdxInstance> createRegionAttributesMetadataRegion() {
-        Region<String, PdxInstance> metaRegion = this.cache.getRegion(REGION_ATTRIBUTES_METADATA_REGION);
-        if (metaRegion == null) {
-            RegionFactory<String, PdxInstance> factory = this.cache.createRegionFactory();
-            factory.setDataPolicy(DataPolicy.REPLICATE);
-            factory.setScope(Scope.DISTRIBUTED_ACK);
-            factory.addCacheListener(new CreateRegionCacheListener());
-            metaRegion = factory.create(REGION_ATTRIBUTES_METADATA_REGION);
-        }
-        return metaRegion;
     }
 
     public String getId() {
