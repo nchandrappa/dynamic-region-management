@@ -16,7 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CreateRegionCacheListenerTest {
+public class MetadataRegionCacheListenerTest {
 
     static private Cache cache;
 
@@ -43,7 +43,7 @@ public class CreateRegionCacheListenerTest {
         when(event.getKey()).thenReturn(getCurrentTestName());
         when(event.getNewValue()).thenReturn(regionConfig);
 
-        CreateRegionCacheListener listener = new CreateRegionCacheListener();
+        MetadataRegionCacheListener listener = new MetadataRegionCacheListener();
 
         listener.afterCreate(event);
 
@@ -60,7 +60,7 @@ public class CreateRegionCacheListenerTest {
         when(event.getKey()).thenReturn(getCurrentTestName());
         when(event.getNewValue()).thenReturn(regionConfig);
 
-        CreateRegionCacheListener listener = new CreateRegionCacheListener();
+        MetadataRegionCacheListener listener = new MetadataRegionCacheListener();
 
         listener.afterCreate(event);
 
@@ -77,7 +77,7 @@ public class CreateRegionCacheListenerTest {
         when(event.getKey()).thenReturn(getCurrentTestName());
         when(event.getNewValue()).thenReturn(regionConfig);
 
-        CreateRegionCacheListener listener = new CreateRegionCacheListener();
+        MetadataRegionCacheListener listener = new MetadataRegionCacheListener();
 
         listener.afterCreate(event);
 

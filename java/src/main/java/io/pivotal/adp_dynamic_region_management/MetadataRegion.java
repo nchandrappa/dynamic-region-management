@@ -14,7 +14,7 @@ public class MetadataRegion {
             RegionFactory<String, PdxInstance> factory = cache.createRegionFactory();
             factory.setDataPolicy(DataPolicy.REPLICATE);
             factory.setScope(Scope.DISTRIBUTED_ACK);
-            factory.addCacheListener(new CreateRegionCacheListener());
+            factory.addCacheListener(new MetadataRegionCacheListener());
             metaRegion = factory.create(REGION_ATTRIBUTES_METADATA_REGION);
         }
         return metaRegion;

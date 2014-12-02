@@ -1,8 +1,7 @@
 package io.pivotal.adp_dynamic_region_management;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.Declarable;
+import com.gemstone.gemfire.cache.EntryNotFoundException;
 import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.cache.execute.Function;
 import com.gemstone.gemfire.cache.execute.FunctionContext;
@@ -12,12 +11,9 @@ import java.util.List;
 import java.util.Properties;
 
 public class DestroyRegion implements Function, Declarable {
-    private final Cache cache;
-
     protected final Region<String,PdxInstance> regionAttributesMetadataRegion;
 
     public DestroyRegion() {
-        this.cache = CacheFactory.getAnyInstance();
         this.regionAttributesMetadataRegion = MetadataRegion.getMetadataRegion();
     }
 
@@ -36,8 +32,7 @@ public class DestroyRegion implements Function, Declarable {
         try {
             List arguments = (List) context.getArguments();
             String regionName = (String) arguments.get(0);
-            Region region = cache.getRegion(regionName);
-            boolean result = destroyRegion(region);
+            boolean result = destroyRegion(regionName);
             context.getResultSender().lastResult(result);
         } catch (Exception exception) {
             context.getResultSender().sendException(exception);
@@ -59,12 +54,13 @@ public class DestroyRegion implements Function, Declarable {
         return false;
     }
 
-    private boolean destroyRegion(Region region) {
-        if (region == null) {
+    private boolean destroyRegion(String regionName) {
+        try {
+            this.regionAttributesMetadataRegion.destroy(regionName);
+            // MetadataRegionCacheListener destroys the region in its afterDestroy
+            return true;
+        } catch (EntryNotFoundException exception) {
             return false;
         }
-        region.destroyRegion();
-        this.regionAttributesMetadataRegion.destroy(region.getName());
-        return true;
     }
 }

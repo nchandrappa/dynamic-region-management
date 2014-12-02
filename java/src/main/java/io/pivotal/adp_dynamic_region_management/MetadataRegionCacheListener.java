@@ -7,18 +7,20 @@ import com.gemstone.gemfire.pdx.PdxInstance;
 import java.util.Map;
 import java.util.Properties;
 
-public class CreateRegionCacheListener extends CacheListenerAdapter<String,PdxInstance>  implements Declarable {
+public class MetadataRegionCacheListener extends CacheListenerAdapter<String,PdxInstance>  implements Declarable {
 
     private Cache cache;
 
-    public CreateRegionCacheListener() {
+    public MetadataRegionCacheListener() {
         this.cache = CacheFactory.getAnyInstance();
     }
 
+    @Override
     public void afterCreate(EntryEvent<String,PdxInstance> event) {
         createRegion(event.getKey(), event.getNewValue());
     }
 
+    @Override
     public void afterRegionCreate(RegionEvent<String,PdxInstance> event) {
         Region<String,PdxInstance> region = event.getRegion();
         for (Map.Entry<String,PdxInstance> entry : region.entrySet()) {
@@ -31,15 +33,20 @@ public class CreateRegionCacheListener extends CacheListenerAdapter<String,PdxIn
         RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions);
         RegionFactory regionFactory = regionOptionsFactory.getRegionFactory();
 
-        logInfo("CreateRegionCacheListener creating region named: " + regionName);
+        logInfo("MetadataRegionCacheListener creating region named: " + regionName);
 
         try {
             Region region = regionFactory.create(regionName);
-            logInfo("CreateRegionCacheListener created: " + region);
+            logInfo("MetadataRegionCacheListener created: " + region);
         } catch (RegionExistsException e) {
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
             throw e;
         }
+    }
+
+    @Override
+    public void afterDestroy(EntryEvent<String, PdxInstance> event) {
+        cache.getRegion(event.getKey()).destroyRegion();
     }
 
     private void logInfo(String message) {

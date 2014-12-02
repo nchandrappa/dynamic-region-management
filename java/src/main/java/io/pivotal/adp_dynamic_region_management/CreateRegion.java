@@ -44,7 +44,7 @@ public class CreateRegion implements Function, Declarable {
 
         this.regionAttributesMetadataRegion.put(regionName, regionOptions);
 
-        // the CreateRegionCacheListener should fire synchronously for the previous put
+        // the MetadataRegionCacheListener should fire synchronously for the previous put
 
         region = this.cache.getRegion(regionName);
         if (region == null) {
