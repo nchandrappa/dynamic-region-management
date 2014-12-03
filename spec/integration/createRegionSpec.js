@@ -1,7 +1,6 @@
 const childProcess = require("child_process");
 const async = require("async");
 
-const cache = require("../../lib/cache");
 const main = require("../../lib/main");
 const regionCreator = require("../../lib/regionCreator");
 

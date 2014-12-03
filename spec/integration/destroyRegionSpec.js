@@ -1,8 +1,8 @@
 const childProcess = require("child_process");
 const async = require("async");
 
-const cache = require("../../lib/cache");
 const main = require("../../lib/main");
+const cache = require('../../lib/cache');
 const regionCreator = require("../../lib/regionCreator");
 const regionDestroyer = require("../../lib/regionDestroyer");
 
@@ -62,6 +62,12 @@ feature("Dynamic region destruction", function() {
         });
       },
 
+      // show that region exists on NodeJS client
+      function(next) {
+        expect(cache.getRegion(newRegionName)).toBeDefined();
+        next();
+      },
+
       // destroy the region
       function(next) {
         regionDestroyer.destroyRegion(newRegionName, next);
@@ -83,6 +89,12 @@ feature("Dynamic region destruction", function() {
           expect(stdout).not.toMatch(newRegionName);
           next(error);
         });
+      },
+
+      // show that region does not exist on NodeJS client
+      function(next) {
+        expect(cache.getRegion(newRegionName)).not.toBeDefined();
+        next();
       }
 
     ], function(error) {
