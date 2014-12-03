@@ -1,4 +1,5 @@
 const async = require("async");
+const execFile = require("child_process").execFile;
 
 const main = require("../../lib/main");
 const cache = require("../../lib/cache");
@@ -19,7 +20,7 @@ feature("Dynamic region creation in the client", function(){
           client: {
             type: "PROXY"
           }
-        }
+        };
         regionCreator.createRegion(newRegionName, regionOptions, next);
       },
       function(next) {
@@ -64,4 +65,34 @@ feature("Dynamic region creation in the client", function(){
     });
 
   });
+
+  scenario("Creating a region in another NodeJS client makes it available in the currently running NodeJS client", function(done) {
+    const newRegionName = "newClientRegion" + Date.now();
+
+    function createRegionInAnotherNodeProcess(next) {
+      execFile("node", ["spec/scripts/createRegion.js", newRegionName], function(error, stdout, stderr) {
+        if(error) { throw(error); }
+        next();
+      });
+    }
+
+    async.series([
+      function(next) {
+        main.init(next);
+      },
+      function(next) {
+        createRegionInAnotherNodeProcess(next);
+      },
+      function(next) {
+        const region = cache.getRegion(newRegionName);
+        expect(region).toBeDefined();
+        next();
+      },
+    ], function(error) {
+      if(error) { fail(error); }
+      done();
+    });
+
+  });
+
 });
