@@ -3,6 +3,7 @@ package io.pivotal.adp_dynamic_region_management;
 import com.gemstone.gemfire.cache.*;
 import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -85,6 +87,43 @@ public class MetadataRegionCacheListenerTest {
 
         assertThat(region.getAttributes().getDataPolicy(), equalTo(DataPolicy.NORMAL));
     }
+
+    @Test
+    public void testAfterUpdateAppliesUpdatesToRegion() throws Exception {
+        String regionName = getCurrentTestName();
+        String jsonString =
+                "{" +
+                        "  \"server\": {" +
+                        "    \"cloningEnabled\": true" +
+                        "  }" +
+                        "}";
+        PdxInstance regionConfig = JSONFormatter.fromJSON(jsonString);
+
+        Region region = createRegion(regionName);
+
+        when(event.getKey()).thenReturn(getCurrentTestName());
+        when(event.getNewValue()).thenReturn(regionConfig);
+
+        MetadataRegionCacheListener listener = new MetadataRegionCacheListener();
+
+        assertThat(region.getAttributes().getCloningEnabled(), equalTo(false));
+
+        listener.afterUpdate(event);
+
+        assertThat(region.getAttributes().getCloningEnabled(), equalTo(true));
+    }
+
+    private Region createRegion(String name) {
+        Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
+        PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
+        metadataRegion.put(name, regionOptions);
+        // region is created by the CacheListener
+        Region region = cache.getRegion(name);
+        assertThat(region, notNullValue());
+        assertThat(metadataRegion.containsKey(name), Matchers.equalTo(true));
+        return region;
+    }
+
 
     private String getCurrentTestName() {
         return name.getMethodName();

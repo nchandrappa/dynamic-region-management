@@ -1,19 +1,23 @@
 package io.pivotal.adp_dynamic_region_management;
 
+import com.gemstone.gemfire.cache.Cache;
+import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.Declarable;
-import com.gemstone.gemfire.cache.EntryNotFoundException;
 import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.cache.execute.Function;
 import com.gemstone.gemfire.cache.execute.FunctionContext;
 import com.gemstone.gemfire.pdx.PdxInstance;
+import io.pivotal.adp_dynamic_region_management.options.CloningEnabledOption;
 
 import java.util.List;
 import java.util.Properties;
 
-public class DestroyRegion implements Function, Declarable {
+public class UpdateRegion implements Function, Declarable {
+    private Cache cache;
     private Region<String,PdxInstance> regionAttributesMetadataRegion;
 
-    public DestroyRegion() {
+    public UpdateRegion() {
+        this.cache = CacheFactory.getAnyInstance();
         this.regionAttributesMetadataRegion = MetadataRegion.getMetadataRegion();
     }
 
@@ -31,7 +35,8 @@ public class DestroyRegion implements Function, Declarable {
         try {
             List arguments = (List) context.getArguments();
             String regionName = (String) arguments.get(0);
-            boolean result = destroyRegion(regionName);
+            PdxInstance regionOptions = (PdxInstance) arguments.get(1);
+            boolean result = updateRegion(regionName, regionOptions);
             context.getResultSender().lastResult(result);
         } catch (Exception exception) {
             context.getResultSender().sendException(exception);
@@ -53,13 +58,17 @@ public class DestroyRegion implements Function, Declarable {
         return false;
     }
 
-    private boolean destroyRegion(String regionName) {
-        try {
-            this.regionAttributesMetadataRegion.destroy(regionName);
-            // MetadataRegionCacheListener destroys the region in its afterDestroy
+    private boolean updateRegion(String regionName, PdxInstance regionOptions) throws RegionOptionsInvalidException {
+        Region region = this.cache.getRegion(regionName);
+
+        if (region != null) {
+            PdxInstance serverOptions = (PdxInstance) regionOptions.getField("server");
+            new CloningEnabledOption(serverOptions).updateMetadataRegion(regionName);
+
             return true;
-        } catch (EntryNotFoundException exception) {
-            return false;
         }
+
+        return false;
     }
+
 }

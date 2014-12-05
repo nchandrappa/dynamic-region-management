@@ -19,6 +19,7 @@ import java.util.Arrays;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +42,7 @@ public class DestroyRegionTest {
     public void setUp() {
         regionName = getClass().getName() + name.getMethodName();
         cache = CacheSingleton.getCache();
+        GemfireFunctionHelper.rethrowFunctionExceptions(resultSender);
     }
 
     @Test
@@ -98,6 +100,8 @@ public class DestroyRegionTest {
     @Test
     public void executeSendsExceptions() throws Exception {
         RuntimeException exception = new RuntimeException();
+
+        ResultSender resultSender = mock(ResultSender.class);
 
         createRegion(regionName);
         when(context.getResultSender()).thenReturn(resultSender);

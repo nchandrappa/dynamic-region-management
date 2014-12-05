@@ -20,5 +20,8 @@
     <function>
       <class-name>io.pivotal.adp_dynamic_region_management.DestroyRegion</class-name>
     </function>
+    <function>
+      <class-name>io.pivotal.adp_dynamic_region_management.UpdateRegion</class-name>
+    </function>
   </function-service>
 </cache>
