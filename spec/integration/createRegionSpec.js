@@ -1,14 +1,10 @@
-const childProcess = require("child_process");
 const async = require("async");
 
 const main = require("../../lib/main");
 const regionCreator = require("../../lib/regionCreator");
 
 require("../helpers/features.js");
-
-function gfsh(command, callback) {
-  childProcess.exec('gfsh -e "connect" -e "' + command + '"', callback);
-}
+const gfsh = require("../helpers/gfsh");
 
 feature("Dynamic region creation", function() {
   var originalDefaultTimeoutInterval;
