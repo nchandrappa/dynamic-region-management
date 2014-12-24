@@ -20,3 +20,34 @@ reference implementation for NodeJS
 2. A function is called that requests all existing metadata entries.
 3. For each entry, the client-side region is created, thus backfilling any dynamic regions created before it had booted.
 4. The JS client registers interest in the metadata region so that any new regions created server-side will fire the `create` event.
+
+
+## How to recompile Jar
+
+1. `vagrant up && vagrant ssh`
+2. `cd /vagrant && grunt`
+3. This runs the grunt task `java:build`, which generates the jar file in /vagrant/java/build/lib/java.jar which can then be renamed and copied elsewhere to distribute
+
+
+### Troubleshooting
+
+#### Provisioning VM: Failed to mount folders in Linux guest...
+
+Problem:
+
+    Failed to mount folders in Linux guest. This is usually because
+    the "vboxsf" file system is not available. Please verify that
+    the guest additions are properly installed in the guest and
+    can work properly. The command attempted was:
+    
+    mount -t vboxsf -o uid=id -u vagrant,gid=getent group vagrant | cut -d: -f3 vagrant /vagrant
+    mount -t vboxsf -o uid=id -u vagrant,gid=id -g vagrant vagrant /vagrant
+
+Solution:
+
+1. vagrant ssh
+2. sudo yum -y update && sudo /etc/init.d/vboxadd setup && exit
+3. vagrant reload
+
+For more info see: http://stackoverflow.com/questions/22717428/vagrant-error-failed-to-mount-folders-in-linux-guest
+

@@ -11,10 +11,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class DestroyRegion implements Function, Declarable {
-    private Region<String,PdxInstance> regionAttributesMetadataRegion;
-
-    public DestroyRegion() {
-        this.regionAttributesMetadataRegion = MetadataRegion.getMetadataRegion();
+    private Region<String,PdxInstance> getRegionAttributesMetadataRegion() {
+        return MetadataRegion.getMetadataRegion();
     }
 
     @Override
@@ -55,7 +53,7 @@ public class DestroyRegion implements Function, Declarable {
 
     private boolean destroyRegion(String regionName) {
         try {
-            this.regionAttributesMetadataRegion.destroy(regionName);
+            this.getRegionAttributesMetadataRegion().destroy(regionName);
             // MetadataRegionCacheListener destroys the region in its afterDestroy
             return true;
         } catch (EntryNotFoundException exception) {

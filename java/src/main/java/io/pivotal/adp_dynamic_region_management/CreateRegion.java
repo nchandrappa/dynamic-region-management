@@ -15,11 +15,12 @@ public class CreateRegion implements Function, Declarable {
 
     private final Cache cache;
 
-    protected final Region<String,PdxInstance> regionAttributesMetadataRegion;
+    private Region<String,PdxInstance> getRegionAttributesMetadataRegion() {
+        return MetadataRegion.getMetadataRegion();
+    }
 
     public CreateRegion() {
         this.cache = CacheFactory.getAnyInstance();
-        this.regionAttributesMetadataRegion = MetadataRegion.getMetadataRegion();
     }
 
     public void execute(FunctionContext context) {
@@ -42,7 +43,7 @@ public class CreateRegion implements Function, Declarable {
 
         new RegionOptionsValidator(regionOptions).validate();
 
-        this.regionAttributesMetadataRegion.put(regionName, regionOptions);
+        this.getRegionAttributesMetadataRegion().put(regionName, regionOptions);
 
         // the MetadataRegionCacheListener should fire synchronously for the previous put
 
