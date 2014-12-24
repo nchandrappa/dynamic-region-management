@@ -14,5 +14,25 @@
             <disk-dir>/vagrant/tmp/javaTestDiskStore</disk-dir>
         </disk-dirs>
     </disk-store>
-    <pdx read-serialized="true" />
+    <pdx read-serialized="true" persistent="true"/>
+
+  <region name="__regionAttributesMetadata" refid="REPLICATE">
+    <region-attributes>
+      <cache-listener>
+        <class-name>io.pivotal.adp_dynamic_region_management.MetadataRegionCacheListener</class-name>
+      </cache-listener>
+    </region-attributes>
+  </region>
+  <function-service>
+    <function>
+      <class-name>io.pivotal.adp_dynamic_region_management.CreateRegion</class-name>
+    </function>
+    <function>
+      <class-name>io.pivotal.adp_dynamic_region_management.DestroyRegion</class-name>
+    </function>
+    <function>
+      <class-name>io.pivotal.adp_dynamic_region_management.UpdateRegion</class-name>
+    </function>
+  </function-service>
+
 </cache>

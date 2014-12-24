@@ -14,11 +14,9 @@ import java.util.Properties;
 
 public class UpdateRegion implements Function, Declarable {
     private Cache cache;
-    private Region<String,PdxInstance> regionAttributesMetadataRegion;
 
     public UpdateRegion() {
         this.cache = CacheFactory.getAnyInstance();
-        this.regionAttributesMetadataRegion = MetadataRegion.getMetadataRegion();
     }
 
     @Override
