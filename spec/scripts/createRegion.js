@@ -4,7 +4,8 @@ const regionName = process.argv[2];
 
 const regionOptions = {
   client: {
-    type: "PROXY"
+    type: "PROXY",
+    poolName: "myPool"
   }
 };
 

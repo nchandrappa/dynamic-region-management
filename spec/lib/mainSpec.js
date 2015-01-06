@@ -4,11 +4,12 @@ const execFile = require('child_process').execFile;
 const main = require("../../lib/main");
 const cache = require("../../lib/cache");
 const regionCreator = require("../../lib/regionCreator");
+const metadataRegion = cache.getRegion("__regionAttributesMetadata");
 
 require("../helpers/features.js");
 
 function listRegions(callback) {
-  execFile('node', ['./lib/listRegions.js'], function (error, stdout, stderr) {
+  execFile('node', ['./spec/scripts/listRegions.js'], function (error, stdout, stderr) {
     if(error) { callback(error); }
     const regions = stdout.trim().split("\n");
     callback(null, regions);
@@ -16,20 +17,25 @@ function listRegions(callback) {
 }
 
 describe("main", function() {
+  beforeEach(function(done) {
+    metadataRegion.clear(done);
+  });
+
   describe("init", function() {
     it("creates any regions that are already present", function(done) {
       const regionName = "alreadyPresentRegion" + Date.now();
 
       async.series([
-        function(next) { main.init(next); },
         function(next) {
           const regionOptions = {
             server: { type: "REPLICATE" },
-            client: { type: "PROXY" }
+            client: { type: "PROXY", poolName: "myPool" }
           };
           regionCreator.createRegion(regionName, regionOptions, next);
         },
         function(next) {
+          // The call to main.init() inside listRegions should re-create and
+          // list the newly-created region in that separate process
           listRegions(function(error, regions) {
             if(error) { fail(error); }
             expect(regions).toContain(regionName);

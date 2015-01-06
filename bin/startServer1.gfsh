@@ -1,8 +1,9 @@
-connect
+connect --locator=10.0.2.15[10334]
 
 start server \
   --dir=server1 \
   --cache-xml-file=/vagrant/config/server.xml \
   --name=server1 \
+  --bind-address=10.0.2.15 \
   --server-port=40404 \
   --classpath=/vagrant/java/build/libs/java.jar

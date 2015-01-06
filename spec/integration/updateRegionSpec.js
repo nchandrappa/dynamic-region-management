@@ -2,6 +2,7 @@ const async = require("async");
 
 const main = require("../../lib/main");
 const cache = require('../../lib/cache');
+const metadataRegion = cache.getRegion("__regionAttributesMetadata");
 
 const regionCreator = require("../../lib/regionCreator");
 const regionUpdater = require("../../lib/regionUpdater");
@@ -9,7 +10,7 @@ const regionUpdater = require("../../lib/regionUpdater");
 require("../helpers/features");
 const gfsh = require("../helpers/gfsh");
 
-feature("Update a regions attributes", function() {
+feature("Update a region's attributes", function() {
   beforeEach(function() {
     originalDefaultTimeoutInterval = jasmine.DEFAULT_TIMEOUT_INTERVAL;
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -20,10 +21,13 @@ feature("Update a regions attributes", function() {
   });
 
   beforeEach(function(done) {
-    main.init(done);
+    async.series([
+      function(next) { metadataRegion.clear(next); },
+      function(next) { main.init(next); }
+    ], done);
   });
 
-  scenario("Updating a regions cloning enabled", function(done) {
+  scenario("Updating a region's cloning enabled", function(done) {
     const newRegionName = "newRegion" + Date.now();
 
     async.series([
@@ -31,7 +35,8 @@ feature("Update a regions attributes", function() {
       function(next) {
         const regionOptions = {
           client: {
-            type: "PROXY"
+            type: "PROXY",
+            poolName: "myPool"
           }
         };
 
