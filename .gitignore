@@ -3,6 +3,7 @@
 *.iml
 *.jar
 .gradle
+.DS_Store
 npm-debug.log
 .vagrant/
 java/build/
