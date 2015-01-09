@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
-const cache = require("./cache");
-const main = require("./main");
+const cache = require("../../lib/cache");
+const main = require("../../lib/main");
 
 main.init(function(){
   _.each(cache.rootRegions(), function(region){

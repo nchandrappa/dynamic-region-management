@@ -5,12 +5,10 @@ const main = require("../../lib/main");
 const cache = require('../../lib/cache');
 const regionCreator = require("../../lib/regionCreator");
 const regionDestroyer = require("../../lib/regionDestroyer");
+const metadataRegion = cache.getRegion("__regionAttributesMetadata");
 
 require("../helpers/features.js");
-
-function gfsh(command, callback) {
-  childProcess.exec('gfsh -e "connect" -e "' + command + '"', callback);
-}
+const gfsh = require("../helpers/gfsh");
 
 feature("Dynamic region destruction", function() {
   var originalDefaultTimeoutInterval;
@@ -25,7 +23,10 @@ feature("Dynamic region destruction", function() {
   });
 
   beforeEach(function(done) {
-    main.init(done);
+    async.series([
+      function(next) { metadataRegion.clear(next); },
+      function(next) { main.init(next); }
+    ], done);
   });
 
   scenario("Calling a java function destroys a region on all Java servers", function(done) {
@@ -37,7 +38,8 @@ feature("Dynamic region destruction", function() {
       function(next) {
         const regionOptions = {
           client: {
-            type: "PROXY"
+            type: "PROXY",
+            poolName: "myPool"
           }
         };
 

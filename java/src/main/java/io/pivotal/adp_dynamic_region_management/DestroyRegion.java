@@ -10,6 +10,8 @@ import com.gemstone.gemfire.pdx.PdxInstance;
 import java.util.List;
 import java.util.Properties;
 
+import static io.pivotal.adp_dynamic_region_management.ExceptionHelpers.sendStrippedException;
+
 public class DestroyRegion implements Function, Declarable {
     private Region<String,PdxInstance> getRegionAttributesMetadataRegion() {
         return MetadataRegion.getMetadataRegion();
@@ -32,7 +34,7 @@ public class DestroyRegion implements Function, Declarable {
             boolean result = destroyRegion(regionName);
             context.getResultSender().lastResult(result);
         } catch (Exception exception) {
-            context.getResultSender().sendException(exception);
+            sendStrippedException(context, exception);
         }
     }
 

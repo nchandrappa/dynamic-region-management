@@ -2,6 +2,8 @@ const async = require("async");
 
 const main = require("../../lib/main");
 const regionCreator = require("../../lib/regionCreator");
+const cache = require("../../lib/cache");
+const metadataRegion = cache.getRegion("__regionAttributesMetadata");
 
 require("../helpers/features.js");
 const gfsh = require("../helpers/gfsh");
@@ -19,7 +21,10 @@ feature("Dynamic region creation", function() {
   });
 
   beforeEach(function(done) {
-    main.init(done);
+    async.series([
+      function(next) { metadataRegion.clear(next); },
+      function(next) { main.init(next); }
+    ], done);
   });
 
   scenario("Calling a java function creates a region on all Java servers", function(done) {
@@ -49,7 +54,8 @@ feature("Dynamic region creation", function() {
       function(next) {
         const regionOptions = {
           client: {
-            type: "PROXY"
+            type: "PROXY",
+            poolName: "myPool"
           }
         };
 
@@ -111,7 +117,8 @@ feature("Dynamic region creation", function() {
             type: "PARTITION"
           },
           client: {
-            type: "PROXY"
+            type: "PROXY",
+            poolName: "myPool"
           }
         };
 
@@ -245,7 +252,8 @@ feature("Dynamic region creation", function() {
         cloningEnabled: true,
       },
       client: {
-        type: "PROXY"
+        type: "PROXY",
+        poolName: "myPool"
       }
     };
 
@@ -279,7 +287,8 @@ feature("Dynamic region creation", function() {
         concurrencyChecksEnabled: false
       },
       client: {
-        type: "PROXY"
+        type: "PROXY",
+        poolName: "myPool"
       }
     };
 

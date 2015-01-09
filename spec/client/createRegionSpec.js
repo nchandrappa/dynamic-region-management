@@ -4,10 +4,15 @@ const execFile = require("child_process").execFile;
 const main = require("../../lib/main");
 const cache = require("../../lib/cache");
 const regionCreator = require("../../lib/regionCreator");
+const metadataRegion = cache.getRegion("__regionAttributesMetadata");
 
 require("../helpers/features.js");
 
 feature("Dynamic region creation in the client", function(){
+  beforeEach(function(done) {
+    metadataRegion.clear(done);
+  });
+
   scenario("Creating a region makes it available in the current NodeJS client", function(done) {
     const newRegionName = "newClientRegion" + Date.now();
 
@@ -18,7 +23,8 @@ feature("Dynamic region creation in the client", function(){
       function(next) {
         const regionOptions = {
           client: {
-            type: "PROXY"
+            type: "PROXY",
+            poolName: "myPool"
           }
         };
         regionCreator.createRegion(newRegionName, regionOptions, next);
@@ -48,7 +54,8 @@ feature("Dynamic region creation in the client", function(){
             type: "PARTITION"
           },
           client: {
-            type: "PROXY"
+            type: "PROXY",
+            poolName: "myPool"
           }
         };
 

@@ -11,6 +11,8 @@ import com.gemstone.gemfire.pdx.PdxInstance;
 import java.util.List;
 import java.util.Properties;
 
+import static io.pivotal.adp_dynamic_region_management.ExceptionHelpers.sendStrippedException;
+
 public class CreateRegion implements Function, Declarable {
 
     private final Cache cache;
@@ -32,7 +34,7 @@ public class CreateRegion implements Function, Declarable {
             boolean status = createOrRetrieveRegion(regionName, regionOptions);
             context.getResultSender().lastResult(status);
         } catch (Exception exception) {
-            context.getResultSender().sendException(exception);
+            sendStrippedException(context, exception);
         }
     }
 
