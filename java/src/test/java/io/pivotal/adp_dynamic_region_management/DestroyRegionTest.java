@@ -11,6 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -99,7 +100,7 @@ public class DestroyRegionTest {
 
     @Test
     public void executeSendsExceptions() throws Exception {
-        RuntimeException exception = new RuntimeException();
+        RuntimeException exception = new RuntimeException("This is my message");
 
         ResultSender resultSender = mock(ResultSender.class);
 
@@ -109,7 +110,11 @@ public class DestroyRegionTest {
 
         new DestroyRegion().execute(context);
 
-        verify(resultSender).sendException(exception);
+        ArgumentCaptor<Exception> argument = ArgumentCaptor.forClass(Exception.class);
+        verify(resultSender).sendException(argument.capture());
+
+        assertThat(argument.getValue().getMessage(), equalTo(exception.getMessage()));
+        assertThat(argument.getValue().getStackTrace(), equalTo(exception.getStackTrace()));
     }
 
     @Test

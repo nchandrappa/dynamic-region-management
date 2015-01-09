@@ -12,6 +12,8 @@ import io.pivotal.adp_dynamic_region_management.options.CloningEnabledOption;
 import java.util.List;
 import java.util.Properties;
 
+import static io.pivotal.adp_dynamic_region_management.ExceptionHelpers.sendStrippedException;
+
 public class UpdateRegion implements Function, Declarable {
     private Cache cache;
     private Region<String,PdxInstance> regionAttributesMetadataRegion;
@@ -39,7 +41,7 @@ public class UpdateRegion implements Function, Declarable {
             boolean result = updateRegion(regionName, regionOptions);
             context.getResultSender().lastResult(result);
         } catch (Exception exception) {
-            context.getResultSender().sendException(exception);
+            sendStrippedException(context, exception);
         }
     }
 
