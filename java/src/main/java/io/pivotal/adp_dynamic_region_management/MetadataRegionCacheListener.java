@@ -1,16 +1,25 @@
 package io.pivotal.adp_dynamic_region_management;
 
-import com.gemstone.gemfire.cache.*;
-import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
-import com.gemstone.gemfire.pdx.PdxInstance;
 import io.pivotal.adp_dynamic_region_management.options.CloningEnabledOption;
 
 import java.util.Map;
 import java.util.Properties;
 
+import com.gemstone.gemfire.cache.Cache;
+import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.Declarable;
+import com.gemstone.gemfire.cache.EntryEvent;
+import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.RegionEvent;
+import com.gemstone.gemfire.cache.RegionExistsException;
+import com.gemstone.gemfire.cache.RegionFactory;
+import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
+import com.gemstone.gemfire.pdx.PdxInstance;
+
 public class MetadataRegionCacheListener extends CacheListenerAdapter<String,PdxInstance>  implements Declarable {
 
     private Cache cache;
+    private DistributionPolicy distributionPolicy = null;
 
     public MetadataRegionCacheListener() {
         this.cache = CacheFactory.getAnyInstance();
@@ -31,18 +40,11 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 
     @Override
     public void afterUpdate(EntryEvent<String, PdxInstance> event) {
-        PdxInstance regionOptions = event.getNewValue();
-        PdxInstance serverOptions = (PdxInstance) regionOptions.getField("server");
-
-        String regionName = event.getKey();
-        Region region = CacheFactory.getAnyInstance().getRegion(regionName);
-
-        new CloningEnabledOption(serverOptions).updateRegion(region);
     }
 
     private void createRegion(String regionName, PdxInstance pdxInstance) {
         PdxInstance serverOptions = (PdxInstance) pdxInstance.getField("server");
-        RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions);
+        RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions, distributionPolicy);
         RegionFactory regionFactory = regionOptionsFactory.getRegionFactory();
 
         logInfo("MetadataRegionCacheListener creating region named: " + regionName);
@@ -66,5 +68,17 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     }
 
     public void init(Properties properties) {
+    	String className = properties.getProperty("distributionPolicyClass");
+    	if (className != null){
+    		try {
+    			Class clazz = Class.forName(className);
+    			this.distributionPolicy = (DistributionPolicy) clazz.newInstance();
+    			this.init(properties);
+    		} catch(ClassNotFoundException x){
+    			throw new RuntimeException("distributionPolicyClass was not found: " + className);
+    		} catch(InstantiationException | IllegalAccessException xx){
+    			throw new RuntimeException("distributionPolicy class was found but instantiation failed: " + className, xx);
+    		} 
+    	}
     }
 }

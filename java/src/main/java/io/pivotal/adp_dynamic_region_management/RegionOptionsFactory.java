@@ -1,18 +1,69 @@
 package io.pivotal.adp_dynamic_region_management;
 
-import com.gemstone.gemfire.cache.*;
-import com.gemstone.gemfire.pdx.PdxInstance;
-import io.pivotal.adp_dynamic_region_management.options.*;
+import io.pivotal.adp_dynamic_region_management.options.AsyncEventQueueIdsOption;
+import io.pivotal.adp_dynamic_region_management.options.CacheListenerOption;
+import io.pivotal.adp_dynamic_region_management.options.CacheLoaderOption;
+import io.pivotal.adp_dynamic_region_management.options.CacheWriterOption;
+import io.pivotal.adp_dynamic_region_management.options.CloningEnabledOption;
+import io.pivotal.adp_dynamic_region_management.options.CompressorOption;
+import io.pivotal.adp_dynamic_region_management.options.ConcurrencyChecksEnabledOption;
+import io.pivotal.adp_dynamic_region_management.options.ConcurrencyLevelOption;
+import io.pivotal.adp_dynamic_region_management.options.DataPolicyOption;
+import io.pivotal.adp_dynamic_region_management.options.DiskStoreNameOption;
+import io.pivotal.adp_dynamic_region_management.options.DiskSynchronousOption;
+import io.pivotal.adp_dynamic_region_management.options.EnableAsyncConflationOption;
+import io.pivotal.adp_dynamic_region_management.options.EnableSubscriptionConflationOption;
+import io.pivotal.adp_dynamic_region_management.options.EntryIdleTimeOption;
+import io.pivotal.adp_dynamic_region_management.options.EntryTimeToLiveOption;
+import io.pivotal.adp_dynamic_region_management.options.EvictionAttributesOption;
+import io.pivotal.adp_dynamic_region_management.options.GatewaySenderIdsOption;
+import io.pivotal.adp_dynamic_region_management.options.IgnoreJTAOption;
+import io.pivotal.adp_dynamic_region_management.options.IndexUpdateTypeOption;
+import io.pivotal.adp_dynamic_region_management.options.InitialCapacityOption;
+import io.pivotal.adp_dynamic_region_management.options.IsLockGrantorOption;
+import io.pivotal.adp_dynamic_region_management.options.KeyConstraintOption;
+import io.pivotal.adp_dynamic_region_management.options.LoadFactorOption;
+import io.pivotal.adp_dynamic_region_management.options.MembershipAttributesOption;
+import io.pivotal.adp_dynamic_region_management.options.MulticastEnabledOption;
+import io.pivotal.adp_dynamic_region_management.options.PartitionAttributesOption;
+import io.pivotal.adp_dynamic_region_management.options.RegionIdleTimeOption;
+import io.pivotal.adp_dynamic_region_management.options.RegionOption;
+import io.pivotal.adp_dynamic_region_management.options.RegionTimeToLiveOption;
+import io.pivotal.adp_dynamic_region_management.options.ScopeOption;
+import io.pivotal.adp_dynamic_region_management.options.StatisticsEnabledOption;
+import io.pivotal.adp_dynamic_region_management.options.SubscriptionAttributesOption;
+import io.pivotal.adp_dynamic_region_management.options.ValueConstraintOption;
 
 import java.util.Arrays;
 import java.util.List;
 
+import com.gemstone.gemfire.cache.Cache;
+import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.RegionFactory;
+import com.gemstone.gemfire.cache.RegionShortcut;
+import com.gemstone.gemfire.pdx.PdxInstance;
+
 public class RegionOptionsFactory {
     private Cache cache;
     private PdxInstance serverOptions;
+    private DistributionPolicy distributionPolicy;
 
+    public RegionOptionsFactory(PdxInstance serverOptions, DistributionPolicy distributionPolicy) {
+        this.serverOptions = serverOptions;
+        this.distributionPolicy = distributionPolicy;
+        this.cache = CacheFactory.getAnyInstance();
+    }
+
+    /**
+     * this ctor with no distribution policy will create a RegionOptionsFactory that behaves
+     * the same way it did before the DistirbutionPolicy Enhancement, thus enabling 
+     * previously written tests to pass
+     * 
+     * @param serverOptions
+     */
     public RegionOptionsFactory(PdxInstance serverOptions) {
         this.serverOptions = serverOptions;
+        this.distributionPolicy = null;
         this.cache = CacheFactory.getAnyInstance();
     }
 
@@ -55,7 +106,7 @@ public class RegionOptionsFactory {
                 new DataPolicyOption(serverOptions),
                 new EnableAsyncConflationOption(serverOptions),
                 new EnableSubscriptionConflationOption(serverOptions),
-                new GatewaySenderIdsOption(serverOptions),
+                new GatewaySenderIdsOption(serverOptions, this.distributionPolicy), 
                 new AsyncEventQueueIdsOption(serverOptions),
                 new IgnoreJTAOption(serverOptions),
                 new IndexUpdateTypeOption(serverOptions),
@@ -89,7 +140,7 @@ public class RegionOptionsFactory {
                 regionOption.setOptionOnRegionFactory(regionFactory);
             }
         }
-
+        
         return regionFactory;
     }
 }

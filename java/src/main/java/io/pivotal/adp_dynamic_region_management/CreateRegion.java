@@ -43,7 +43,7 @@ public class CreateRegion implements Function, Declarable {
         if (region != null) { return false; }
 
         new RegionOptionsValidator(regionOptions).validate();
-
+       
         this.regionAttributesMetadataRegion.put(regionName, regionOptions);
 
         // the MetadataRegionCacheListener should fire synchronously for the previous put
@@ -73,5 +73,6 @@ public class CreateRegion implements Function, Declarable {
     }
 
     public void init(Properties properties) {
+    	
     }
 }

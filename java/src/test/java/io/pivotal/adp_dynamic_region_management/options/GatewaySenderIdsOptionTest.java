@@ -34,7 +34,7 @@ public class GatewaySenderIdsOptionTest {
 
     @Test
     public void testGetRegionFactoryWithGatewaySenderIds() throws Exception {
-        new GatewaySenderIdsOption(serverOptions).setOptionOnRegionFactory(regionFactory);
+        new GatewaySenderIdsOption(serverOptions, null).setOptionOnRegionFactory(regionFactory);
 
         Region region = regionFactory.create(getCurrentTestName());
 
