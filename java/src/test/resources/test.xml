@@ -15,4 +15,13 @@
         </disk-dirs>
     </disk-store>
     <pdx read-serialized="true" />
+	<region name="__regionAttributesMetadata" refid="REPLICATE">
+		<region-attributes >
+			<cache-listener>
+				<class-name>io.pivotal.adp_dynamic_region_management.MetadataRegionCacheListener</class-name>
+			</cache-listener>
+		</region-attributes>
+	</region>
+
+
 </cache>

@@ -73,7 +73,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     		try {
     			Class clazz = Class.forName(className);
     			this.distributionPolicy = (DistributionPolicy) clazz.newInstance();
-    			this.init(properties);
+    			this.distributionPolicy.init(properties);
     		} catch(ClassNotFoundException x){
     			throw new RuntimeException("distributionPolicyClass was not found: " + className);
     		} catch(InstantiationException | IllegalAccessException xx){

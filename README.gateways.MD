@@ -11,6 +11,9 @@ policy will still control.
 If the distribution policy is not provided on the regin options, a default policy,
 also configured on the cache server, will be used.
 
+#Configuring the Server Side
+The adp-dynamic-region-management jar must be 
+
 
 
 
@@ -28,4 +31,6 @@ Here are some of them.
   actual region creation will fail.
 * In BasicDistributionPolicy , no attempt has been made to handle any whitespace in 
   the property values
+* Nothing checks consistency of distribution policy among the cache servers.
+
 

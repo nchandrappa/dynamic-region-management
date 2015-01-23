@@ -13,7 +13,7 @@ feature("Dynamic region creation", function() {
 
   beforeEach(function() {
     originalDefaultTimeoutInterval = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
   });
 
   afterEach(function() {

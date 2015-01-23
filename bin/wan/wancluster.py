@@ -11,6 +11,37 @@ GEMFIRE=os.environ["GEMFIRE"]
 
 
 CLUSTER_HOME="/vagrant/tmp/wan-gemfire"
+CACHE_XML_FILE="/vagrant/config/wan-server.xml"
+SERVER_CLASSPATH="/vagrant/java/build/libs/java.jar"
+
+def locatorport(cnum):
+	return 10000 * cnum			
+
+def serverport(cnum, snum):
+	return (10000 * cnum) + (100 * snum)
+	
+def jmxmanagerport(cnum):
+	return (10000 * cnum) + 1099
+	
+def gwayreceiverstartport(cnum):
+	return (10000 * cnum) + 2000
+
+def gwayreceiverendport(cnum):
+		return (10000 * cnum) + 2999
+
+
+
+class WanConfig:
+	def __init__(self, rl, rdsid):
+		self.REMOTE_LOCATORS=rl
+		self.REMOTE_DISTRIBUTED_SYSTEM_ID=rdsid
+
+
+WAN_CONFIG=[None, 
+	WanConfig("localhost[{0}]".format(locatorport(2)),"2"),
+	WanConfig("localhost[{0}]".format(locatorport(1)),"1")]
+
+
 LOCATOR_PID_FILE="cf.gf.locator.pid"
 SERVER_PID_FILE="cf.gf.server.pid"
 
@@ -36,11 +67,6 @@ def ensureDirectories(cnum, nodecount):
 		for i in range(1,nodecount + 1):
 			ensureDir(serverDir(cnum,i))
 
-def locatorport(cnum):
-	return 10000 * cnum			
-
-def serverport(cnum, snum):
-	return (10000 * cnum) + (100 * snum)
 
 def pidIsAlive(pidfile):
 	if not os.path.exists(pidfile):
@@ -100,7 +126,13 @@ def startLocator(cnum):
 		, "start", "locator"
 		,"--dir=" + locatorDir(cnum)
 		,"--port={0}".format(locatorport(cnum))
-		,"--name=locator" ])
+		,"--name=locator" 
+		,"--mcast-port=0"
+		,"--J=-Dgemfire.distributed-system-id={0}".format(cnum)
+		,"--J=-Dgemfire.remote-locators={0}".format(WAN_CONFIG[cnum].REMOTE_LOCATORS)
+		,"--J=-DREMOTE_DISTRIBUTED_SYSTEM_ID={0}".format(WAN_CONFIG[cnum].REMOTE_DISTRIBUTED_SYSTEM_ID)
+		,"--J=-Dgemfire.jmx-manager-port={0}".format(jmxmanagerport(cnum))
+		])
 
 	
 def startCluster(cnum, nodecount):
@@ -115,7 +147,17 @@ def startCluster(cnum, nodecount):
 					,"--dir=" + serverDir(cnum, i)
 					,"--server-port={0}".format(serverport(cnum,i))
 					,"--locators=localhost[{0}]".format(locatorport(cnum))
-					,"--name=server_{0}".format(i) ])
+					,"--classpath={0}".format(SERVER_CLASSPATH)
+ 					,"--cache-xml-file={0}".format(CACHE_XML_FILE)
+					,"--name=server_{0}".format(i) 
+					,"--mcast-port=0"
+					,"--J=-Dgemfire.distributed-system-id={0}".format(cnum)
+					,"--J=-Dgemfire.remote-locators={0}".format(WAN_CONFIG[cnum].REMOTE_LOCATORS)
+					,"--J=-DREMOTE_DISTRIBUTED_SYSTEM_ID={0}".format(WAN_CONFIG[cnum].REMOTE_DISTRIBUTED_SYSTEM_ID)
+					,"--J=-DGATEWAY_RECEIVER_START_PORT={0}".format(gwayreceiverstartport(cnum))
+					,"--J=-DGATEWAY_RECEIVER_END_PORT={0}".format(gwayreceiverendport(cnum))
+					])
+
 			processList.append(proc)
 			dirList.append(serverDir(cnum, i))
 		

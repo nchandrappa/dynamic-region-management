@@ -4,24 +4,26 @@
   "http://www.gemstone.com/dtd/cache8_0.dtd">
 
 <cache>
-  <disk-store name="myDiskStore" />
-  <pdx read-serialized="true" persistent="true"/>
-  <region name="__regionAttributesMetadata" refid="REPLICATE">
-    <region-attributes>
-      <cache-listener>
-        <class-name>io.pivotal.adp_dynamic_region_management.MetadataRegionCacheListener</class-name>
-      </cache-listener>
-    </region-attributes>
-  </region>
-  <function-service>
-    <function>
-      <class-name>io.pivotal.adp_dynamic_region_management.CreateRegion</class-name>
-    </function>
-    <function>
-      <class-name>io.pivotal.adp_dynamic_region_management.DestroyRegion</class-name>
-    </function>
-    <function>
-      <class-name>io.pivotal.adp_dynamic_region_management.UpdateRegion</class-name>
-    </function>
-  </function-service>
+
+	<disk-store name="myDiskStore" />
+	<pdx read-serialized="true" persistent="true" disk-store-name="myDiskStore"/>
+
+	<region name="__regionAttributesMetadata" refid="REPLICATE">
+		<region-attributes >
+			<cache-listener>
+				<class-name>io.pivotal.adp_dynamic_region_management.MetadataRegionCacheListener</class-name>
+			</cache-listener>
+		</region-attributes>
+	</region>
+	<function-service>
+		<function>
+			<class-name>io.pivotal.adp_dynamic_region_management.CreateRegion</class-name>
+		</function>
+		<function>
+			<class-name>io.pivotal.adp_dynamic_region_management.DestroyRegion</class-name>
+		</function>
+		<function>
+			<class-name>io.pivotal.adp_dynamic_region_management.TestFunction</class-name>
+		</function>
+	</function-service>
 </cache>

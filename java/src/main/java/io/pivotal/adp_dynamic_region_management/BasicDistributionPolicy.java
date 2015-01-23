@@ -45,14 +45,14 @@ public class BasicDistributionPolicy implements DistributionPolicy {
 	 */
 	@Override
 	public void init(Properties props) {
-		String regionalProp = requiredProp(props, "REGIONAL");
-		String globalProp = requiredProp(props, "GLOBAL");
+		String regionalProp = requiredProp(props, "REGIONAL_DISTRIBUTION_POLICY");
+		String globalProp = requiredProp(props, "GLOBAL_DISTRIBUTION_POLICY");
 		
 		this.regionalSenders = regionalProp.split(",");
 		this.globalSenders = globalProp.split(",");
 
-		this.defaultPolicy = requiredProp(props, "DEFAULT");
-		if (validPolicyName(this.defaultPolicy))
+		this.defaultPolicy = requiredProp(props, "DEFAULT_DISTRIBUTION_POLICY");
+		if (!validPolicyName(this.defaultPolicy))
 			error("invalid default policy: " + this.defaultPolicy + " valid values are \"GLOBAL\",\"REGIONAL\",\"LOCAL\"");
 	}
 	
@@ -66,8 +66,14 @@ public class BasicDistributionPolicy implements DistributionPolicy {
 	}
 	
 	private boolean validPolicyName(String policyName){		
-		boolean valid = policyName.equals("LOCAL") || policyName.equals("REGIONAL") || policyName.equals("GLOBAL");
-		return valid;
+		if (policyName.equals("LOCAL"))
+			return true;
+		else if (policyName.equals("REGIONAL"))
+			return true;
+		else if (policyName.equals("GLOBAL"))
+			return true;
+		else
+			return false;
 	}
 	
 	// always throws a RuntimeException
