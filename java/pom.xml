@@ -9,6 +9,11 @@
 
 	<name>adp-dynamic-region-management</name>
 
+	<scm>
+		<connection>scm:git:file:..</connection>
+	  	<tag>HEAD</tag>
+  </scm>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
