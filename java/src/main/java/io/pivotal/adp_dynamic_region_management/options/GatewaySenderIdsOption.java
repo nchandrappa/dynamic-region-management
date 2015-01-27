@@ -55,7 +55,7 @@ public class GatewaySenderIdsOption extends RegionOption<List> {
 	}
 
 	private String distributionPolicyFieldName(){
-		return "distributionPolic";
+		return "distributionPolicy";
 	}
 	
 	protected String getFieldName() {
