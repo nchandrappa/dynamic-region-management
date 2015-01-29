@@ -41,7 +41,7 @@ First, copy the following dependencies to your `adp-dynamic-region-management/tm
 
 * GemFire for 64 bit Linux RPM (example: `pivotal-gemfire-8.0.0.3-49715.el6.noarch.rpm`)
 * GemFire C++ Native Client for 64 bit Linux Zip (example: `Pivotal_GemFire_NativeClient_Linux_64bit_8001_b6212.zip`)
-* Node Gemfire Tarball (example: `gemfire-0.0.12.tgz`)
+* Node Gemfire Tarball (example: `node-gemfire-0.0.15.tar.gz`)
 
 Then you should be able to install any needed dependencies into the VM with:
 
