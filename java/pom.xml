@@ -3,14 +3,15 @@
 
 	<groupId>io.pivotal</groupId>
 	<artifactId>adp-dynamic-region-management</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<version>0.3</version>
 	<packaging>jar</packaging>
 
 	<name>adp-dynamic-region-management</name>
 
 	<scm>
 		<connection>scm:git:file://localhost/Users/wmay/Pivotal/adp-dynamic-region-management</connection>
-  	</scm>
+  	  <tag>adp-dynamic-region-management-0.3</tag>
+  </scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
