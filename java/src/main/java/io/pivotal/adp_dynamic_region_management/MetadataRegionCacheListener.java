@@ -1,7 +1,7 @@
 package io.pivotal.adp_dynamic_region_management;
 
-import io.pivotal.adp_dynamic_region_management.options.CloningEnabledOption;
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
@@ -33,8 +33,11 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     @Override
     public void afterRegionCreate(RegionEvent<String,PdxInstance> event) {
         Region<String,PdxInstance> region = event.getRegion();
-        for (Map.Entry<String,PdxInstance> entry : region.entrySet()) {
-            createRegion(entry.getKey(), entry.getValue());
+        ArrayList<String> keys = new ArrayList<String>(500);
+        keys.addAll(region.keySet());
+        Collections.sort(keys);
+        for (String regionName : keys) {
+            createRegion(regionName, region.get(regionName));
         }
     }
 
@@ -47,11 +50,11 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions, distributionPolicy);
         RegionFactory regionFactory = regionOptionsFactory.getRegionFactory();
 
-        logInfo("MetadataRegionCacheListener creating region named: " + regionName);
+        logInfo(">> MetadataRegionCacheListener creating region named: " + regionName);
 
         try {
             Region region = regionFactory.create(regionName);
-            logInfo("MetadataRegionCacheListener created: " + region);
+            logInfo(">> MetadataRegionCacheListener created: " + region);
         } catch (RegionExistsException e) {
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
             throw e;
