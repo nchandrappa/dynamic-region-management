@@ -29,6 +29,12 @@
 				<parameter name="DEFAULT_DISTRIBUTION_POLICY">
 					<string>GLOBAL</string>
 				</parameter>
+				<parameter name="STARTUP_REDUNDANCY_RECOVERY_DELAY">
+					<string>0</string>
+				</parameter>
+				<parameter name="FAILURE_REDUNDANCY_RECOVERY_DELAY">
+					<string>-1</string>
+				</parameter>
 			</cache-listener>
 		</region-attributes>
 	</region>
