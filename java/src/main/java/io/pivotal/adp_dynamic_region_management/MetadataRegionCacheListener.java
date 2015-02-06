@@ -1,9 +1,14 @@
 package io.pivotal.adp_dynamic_region_management;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.Declarable;
@@ -13,8 +18,8 @@ import com.gemstone.gemfire.cache.RegionEvent;
 import com.gemstone.gemfire.cache.RegionExistsException;
 import com.gemstone.gemfire.cache.RegionFactory;
 import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
+import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
-import com.gemstone.gemfire.pdx.WritablePdxInstance;
 
 public class MetadataRegionCacheListener extends CacheListenerAdapter<String,PdxInstance>  implements Declarable {
 
@@ -56,36 +61,43 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 
     private void createRegion(String regionName, PdxInstance pdxInstance) {
         PdxInstance serverOptions = (PdxInstance) pdxInstance.getField("server");
-
-        // enforce overrides by setting server options here
-        if (redundancyRecoveryDelay != Integer.MIN_VALUE){
-        	PdxInstance partitionAttributes  = (PdxInstance) serverOptions.getField(PARTITION_ATTRIBUTES_FIELD); 
-        	WritablePdxInstance writeable =  serverOptions.createWriter();
-        	writeable.setField(RECOVERY_DELAY_FIELD, Integer.valueOf(redundancyRecoveryDelay));
-        	serverOptions = writeable;
-        }
         
-        if (startupRedundancyRecoveryDelay != Integer.MIN_VALUE ){
-        	WritablePdxInstance writeable = null;
-        	if ( serverOptions instanceof WritablePdxInstance){
-        		writeable = (WritablePdxInstance) serverOptions;
-        	} else {
-        		writeable = serverOptions.createWriter();
+        // enforce overrides by setting server options here
+        if ( (redundancyRecoveryDelay != Integer.MIN_VALUE) || (startupRedundancyRecoveryDelay != Integer.MIN_VALUE) ){
+        	try {
+	        	String serverOptionsJSON = JSONFormatter.toJSON(serverOptions);
+	        	ObjectMapper mapper = new ObjectMapper();
+	        	JsonNode root = mapper.readTree(serverOptionsJSON);
+	        	ObjectNode partitionAttributes = (ObjectNode) root.get(PARTITION_ATTRIBUTES_FIELD);
+	        	if (partitionAttributes == null){
+	        		partitionAttributes = mapper.createObjectNode();
+	        		((ObjectNode) root).put(PARTITION_ATTRIBUTES_FIELD, partitionAttributes);
+	        	}
+	        	
+	        	if (redundancyRecoveryDelay != Integer.MIN_VALUE)
+	        		partitionAttributes.put(RECOVERY_DELAY_FIELD, redundancyRecoveryDelay);
+	        	
+	        	if (startupRedundancyRecoveryDelay != Integer.MIN_VALUE)
+	        		partitionAttributes.put(STARTUP_RECOVERY_DELAY_FIELD, startupRedundancyRecoveryDelay);
+	
+	        	serverOptionsJSON = mapper.writeValueAsString(root);
+	        	CacheFactory.getAnyInstance().getLogger().info("Server options have been overridden - effective options are now: " + serverOptionsJSON);
+	        	serverOptions = JSONFormatter.fromJSON(serverOptionsJSON);
+        	} catch ( IOException x) {
+        		CacheFactory.getAnyInstance().getLogger().severe("error while applying server side overrides to region defintions", x);
+        		throw new RuntimeException("error while applying server side overrides to region defintions", x);
         	}
-        	
-        	writeable.setField(STARTUP_RECOVERY_DELAY_FIELD, Integer.valueOf(startupRedundancyRecoveryDelay));
-        	serverOptions = writeable;
         }
         
         RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions, distributionPolicy);
         RegionFactory regionFactory = regionOptionsFactory.getRegionFactory();
 
         
-        logInfo(">> MetadataRegionCacheListener creating region named: " + regionName);
+        logInfo("MetadataRegionCacheListener creating region named: " + regionName);
 
         try {
             Region region = regionFactory.create(regionName);
-            logInfo(">> MetadataRegionCacheListener created: " + region);
+            logInfo("MetadataRegionCacheListener created: " + region);
         } catch (RegionExistsException e) {
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
             throw e;
