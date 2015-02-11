@@ -9,7 +9,7 @@
 	<name>adp-dynamic-region-management</name>
 
 	<scm>
-		<connection>scm:git:file://localhost/Users/wmay/Pivotal/adp-dynamic-region-management</connection>
+		<connection>${adp-dynamic-region-management.scm.url}</connection>
   	  <tag>HEAD</tag>
   </scm>
 
