@@ -25,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # information on available options.
   config.vm.provider "virtualbox" do |vb|
     vb.name = "adp-dynamic-region-management"
-    vb.memory = 8192
+    vb.memory = 4096
     vb.cpus = 2
   end
 
