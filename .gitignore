@@ -2,10 +2,15 @@
 *.gfs
 *.iml
 *.jar
+*.pyc
 .gradle
 npm-debug.log
 .vagrant/
+.classpath
+.project
+.settings/
 java/build/
 log/
+target/
 node_modules/
 tmp/

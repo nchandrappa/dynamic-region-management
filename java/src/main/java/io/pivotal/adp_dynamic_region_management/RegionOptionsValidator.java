@@ -23,7 +23,7 @@ public class RegionOptionsValidator {
         }
 
         PdxInstance serverOptions = (PdxInstance) regionOptions.getField("server");
-        RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions);
+        RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions, null);
         regionOptionsFactory.validate();
 
         return true;
