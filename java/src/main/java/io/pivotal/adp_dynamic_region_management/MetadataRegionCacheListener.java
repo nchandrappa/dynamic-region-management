@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gemstone.gemfire.LogWriter;
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.Declarable;
@@ -31,12 +32,14 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 	private static String STARTUP_RECOVERY_DELAY_FIELD = "startupRecoveryDelay";
 	
     private Cache cache;
+    private LogWriter logWriter;
     private DistributionPolicy distributionPolicy = null;
     private int redundancyRecoveryDelay = Integer.MIN_VALUE; //indicates not set
     private int startupRedundancyRecoveryDelay = Integer.MIN_VALUE; //indicates not set
 
     public MetadataRegionCacheListener() {
         this.cache = CacheFactory.getAnyInstance();
+        this.logWriter = this.cache.getLogger();
     }
 
     @Override
@@ -49,7 +52,10 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     public void afterUpdate(EntryEvent<String, PdxInstance> event) {
     }
 
-    //TODO make this private - not doing it now because it was tested this way
+    /*  Don't throw exceptions to a listener event method, as they're
+     * not passed back to the client that triggered the event. Logging
+     * an error will be sufficient.
+     */
     public void createRegion(String regionName, PdxInstance pdxInstance) {
         PdxInstance serverOptions = (PdxInstance) pdxInstance.getField("server");
         
@@ -72,11 +78,10 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 	        		partitionAttributes.put(STARTUP_RECOVERY_DELAY_FIELD, startupRedundancyRecoveryDelay);
 	
 	        	serverOptionsJSON = mapper.writeValueAsString(root);
-	        	CacheFactory.getAnyInstance().getLogger().info("Server options have been overridden - effective options are now: " + serverOptionsJSON);
+	        	logInfo("Server options have been overridden - effective options are now: " + serverOptionsJSON);
 	        	serverOptions = JSONFormatter.fromJSON(serverOptionsJSON);
         	} catch ( IOException x) {
-        		CacheFactory.getAnyInstance().getLogger().severe("error while applying server side overrides to region defintions", x);
-        		throw new RuntimeException("error while applying server side overrides to region defintions", x);
+        		this.logWriter.severe("error while applying server side overrides to region defintions", x);
         	}
         }
         
@@ -91,19 +96,30 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
             logInfo("MetadataRegionCacheListener created: " + region);
         } catch (RegionExistsException e) {
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
-            throw e;
         }
     }
 
     @Override
     public void afterDestroy(EntryEvent<String, PdxInstance> event) {
-        cache.getRegion(event.getKey()).destroyRegion();
+    	String regionName = event.getKey();
+    	Region<?,?> region = cache.getRegion(regionName);
+    	if(region!=null) {
+            logInfo("MetadataRegionCacheListener deleting region named: " + regionName);
+    		region.destroyRegion();
+    	} else {
+    		if(this.logWriter.warningEnabled()) {
+    			this.logWriter.warning("Unable to delete region '" + regionName + "', because it does not exist");
+    		}
+    	}
     }
 
     private void logInfo(String message) {
-        this.cache.getLogger().info(message);
+		this.logWriter.info(message);
     }
 
+    /* Errors here indicate the server side configuration is wrong, and
+     * therefore it is appropriate to throw an exception.
+     */
     public void init(Properties properties) {
     	String className = properties.getProperty("distributionPolicyClass");
     	if (className != null){

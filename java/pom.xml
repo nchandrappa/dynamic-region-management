@@ -36,14 +36,22 @@
 			<id>gemfire-repository</id>
 			<name>Gemfire Repository</name>
 			<url>http://dist.gemstone.com/maven/release</url>
+       			<releases>
+            			<enabled>true</enabled>
+                		<updatePolicy>never</updatePolicy>
+            		</releases>
+            		<snapshots>
+            			<enabled>false</enabled>
+            		</snapshots>
 		</repository>
 	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.gemstone.gemfire</groupId>
 			<artifactId>gemfire</artifactId>
-			<version>8.0.0</version>
-			<scope>provided</scope>
+			<version>8.1.0</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
