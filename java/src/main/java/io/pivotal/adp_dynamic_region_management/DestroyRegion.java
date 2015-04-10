@@ -29,6 +29,9 @@ public class DestroyRegion implements Function, Declarable {
         try {
             List arguments = (List) context.getArguments();
             String regionName = (String) arguments.get(0);
+            
+            MetadataRegion.validateRegionName(regionName);
+            
             boolean result = destroyRegion(regionName);
             context.getResultSender().lastResult(result);
         } catch (Exception exception) {

@@ -31,11 +31,19 @@
 		</plugins>
 	</build>
 
+	<repositories>
+		<repository>
+			<id>gemfire-repository</id>
+			<name>Gemfire Repository</name>
+			<url>http://dist.gemstone.com/maven/release</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.gemstone.gemfire</groupId>
 			<artifactId>gemfire</artifactId>
-			<version>8.0.0</version>
+			<version>8.1.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>

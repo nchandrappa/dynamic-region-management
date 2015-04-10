@@ -3,7 +3,6 @@ package io.pivotal.adp_dynamic_region_management;
 // based on http://gemfire.docs.pivotal.io/8.0.0/userguide/developing/region_options/dynamic_region_creation.html
 
 import com.gemstone.gemfire.cache.*;
-
 import com.gemstone.gemfire.cache.execute.Function;
 import com.gemstone.gemfire.cache.execute.FunctionContext;
 import com.gemstone.gemfire.pdx.PdxInstance;
@@ -25,6 +24,9 @@ public class CreateRegion implements Function, Declarable {
         try {
             List arguments = (List) context.getArguments();
             String regionName = (String) arguments.get(0);
+            
+            MetadataRegion.validateRegionName(regionName);
+            
             PdxInstance regionOptions = (PdxInstance) arguments.get(1);
 
             boolean status = createOrRetrieveRegion(regionName, regionOptions);
