@@ -6,12 +6,12 @@
 <cache>
     <disk-store name="bob" >
         <disk-dirs>
-            <disk-dir>/vagrant/tmp/javaTestDiskStore</disk-dir>
+            <disk-dir>${JAVA_TEST_DISK_STORE}</disk-dir>
         </disk-dirs>
     </disk-store>
     <disk-store name="DEFAULT" >
         <disk-dirs>
-            <disk-dir>/vagrant/tmp/javaTestDiskStore</disk-dir>
+            <disk-dir>${JAVA_TEST_DISK_STORE}</disk-dir>
         </disk-dirs>
     </disk-store>
     <pdx read-serialized="true" />
