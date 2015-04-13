@@ -41,7 +41,7 @@ public class DestroyRegionTest {
 
     @Before
     public void setUp() {
-        regionName = getClass().getName() + name.getMethodName();
+        regionName = getClass().getSimpleName() + name.getMethodName();
         cache = CacheSingleton.getCache();
         GemfireFunctionHelper.rethrowFunctionExceptions(resultSender);
     }
