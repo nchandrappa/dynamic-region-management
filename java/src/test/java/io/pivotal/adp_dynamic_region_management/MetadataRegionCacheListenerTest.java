@@ -56,7 +56,7 @@ public class MetadataRegionCacheListenerTest {
 
         listener.afterCreate(event);
 
-        Region region = cache.getRegion(getCurrentTestName());
+        Region<?,?> region = cache.getRegion(getCurrentTestName());
 
         assertThat(region.getAttributes().getDataPolicy(), equalTo(DataPolicy.PARTITION));
     }
@@ -73,7 +73,7 @@ public class MetadataRegionCacheListenerTest {
 
         listener.afterCreate(event);
 
-        Region region = cache.getRegion(getCurrentTestName());
+        Region<?,?> region = cache.getRegion(getCurrentTestName());
 
         assertThat(region.getAttributes().getDataPolicy(), equalTo(DataPolicy.NORMAL));
     }
@@ -90,7 +90,7 @@ public class MetadataRegionCacheListenerTest {
 
         listener.afterCreate(event);
 
-        Region region = cache.getRegion(getCurrentTestName());
+        Region<?,?> region = cache.getRegion(getCurrentTestName());
 
         assertThat(region.getAttributes().getDataPolicy(), equalTo(DataPolicy.NORMAL));
     }
@@ -107,7 +107,7 @@ public class MetadataRegionCacheListenerTest {
                         "}";
         PdxInstance regionConfig = JSONFormatter.fromJSON(jsonString);
 
-        Region region = createRegion(regionName);
+        Region<?,?> region = createRegion(regionName);
 
         when(event.getKey()).thenReturn(getCurrentTestName());
         when(event.getNewValue()).thenReturn(regionConfig);
@@ -123,7 +123,6 @@ public class MetadataRegionCacheListenerTest {
 
     @Test
     public void testAfterDestroy() throws Exception {
-        String regionName = getCurrentTestName();
         String jsonString = "{\"server\": {}}";
         PdxInstance regionConfig = JSONFormatter.fromJSON(jsonString);
 
@@ -147,12 +146,12 @@ public class MetadataRegionCacheListenerTest {
         }
     }
 
-    private Region createRegion(String name) {
+    private Region<?,?> createRegion(String name) {
         Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
         PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
         metadataRegion.put(name, regionOptions);
         // region is created by the CacheListener
-        Region region = cache.getRegion(name);
+        Region<?,?> region = cache.getRegion(name);
         assertThat(region, notNullValue());
         assertThat(metadataRegion.containsKey(name), Matchers.equalTo(true));
         return region;

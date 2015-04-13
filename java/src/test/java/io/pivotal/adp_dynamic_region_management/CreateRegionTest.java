@@ -2,6 +2,8 @@ package io.pivotal.adp_dynamic_region_management;
 
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.RegionFactory;
+import com.gemstone.gemfire.cache.RegionShortcut;
 import com.gemstone.gemfire.cache.execute.FunctionContext;
 import com.gemstone.gemfire.cache.execute.ResultSender;
 import com.gemstone.gemfire.pdx.JSONFormatter;
@@ -10,8 +12,8 @@ import com.gemstone.gemfire.pdx.PdxInstance;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -29,7 +31,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DestroyRegionTest {
+public class CreateRegionTest {
+	private static PdxInstance validRegionOptions = null;
+
     @Rule
     public TestName name = new TestName();
 	@Rule
@@ -50,58 +54,65 @@ public class DestroyRegionTest {
         regionName = getClass().getSimpleName() + name.getMethodName();
         cache = CacheSingleton.getCache();
         GemfireFunctionHelper.rethrowFunctionExceptions(resultSender);
+        validRegionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
     }
 
     @Test
     public void getId() throws Exception {
-        assertThat(new DestroyRegion().getId(), equalTo("DestroyRegion"));
+        assertThat(new CreateRegion().getId(), equalTo("CreateRegion"));
     }
 
     @Test
     public void hasResult() throws Exception {
-        assertThat(new DestroyRegion().hasResult(), equalTo(true));
+        assertThat(new CreateRegion().hasResult(), equalTo(true));
     }
-    
+
     @Test
     public void executeSendsTrueResultOnSuccess() throws Exception {
-        createRegion(regionName);
         when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(regionName));
+        when(context.getArguments()).thenReturn(Arrays.asList(regionName, validRegionOptions));
 
-        new DestroyRegion().execute(context);
+        new CreateRegion().execute(context);
 
         verify(resultSender).lastResult(true);
     }
 
     @Test
-    public void executeSendsFalseResultWhenRegionDoesNotExist() throws Exception {
-        when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(regionName));
+    public void executeSendsFalseResultWhenOnlyRegionMetadataAlreadyExists() throws Exception {
+        createRegion(regionName);
+        cache.getRegion(regionName).destroyRegion();
 
-        new DestroyRegion().execute(context);
+        when(context.getResultSender()).thenReturn(resultSender);
+        when(context.getArguments()).thenReturn(Arrays.asList(regionName, validRegionOptions));
+
+        new CreateRegion().execute(context);
 
         verify(resultSender).lastResult(false);
     }
 
     @Test
-    public void executeDestroysTheRegion() throws Exception {
-        createRegion(regionName);
-        when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(regionName));
+    public void executeSendsFalseResultWhenActualRegionAlreadyExist() throws Exception {
+    	RegionFactory<?,?> regionFactory = cache.createRegionFactory(RegionShortcut.REPLICATE);
+    	regionFactory.create(regionName);
 
-        new DestroyRegion().execute(context);
+    	when(context.getResultSender()).thenReturn(resultSender);
+        when(context.getArguments()).thenReturn(Arrays.asList(regionName, validRegionOptions));
 
-        assertThat(cache.getRegion(regionName), equalTo(null));
+        new CreateRegion().execute(context);
+
+        verify(resultSender).lastResult(false);
     }
 
     @Test
-    public void executeDoesNotDestroyTheRegionIfItDoesNotExist() throws Exception {
+    public void executeCreateMakesRegionAndMetadata() throws Exception {
         when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(regionName));
+        when(context.getArguments()).thenReturn(Arrays.asList(regionName, validRegionOptions));
 
-        new DestroyRegion().execute(context);
+        new CreateRegion().execute(context);
 
-        assertThat(cache.getRegion(regionName), equalTo(null));
+        Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
+        assertThat(cache.getRegion(regionName), notNullValue());
+        assertThat(metadataRegion.containsKey(regionName), equalTo(true));
     }
 
     @SuppressWarnings("unchecked")
@@ -125,143 +136,134 @@ public class DestroyRegionTest {
     }
 
     @Test
-    public void executeDestroysTheRegionMetadataEntry() throws Exception {
-        createRegion(regionName);
-
-        when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(regionName));
-        new DestroyRegion().execute(context);
-
-        Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
-        assertThat(metadataRegion.containsKey(regionName), equalTo(false));
-    }
-
-    @Test
-    public void executeDestroysMetadataEvenIfRegionMissing() throws Exception {
-        createRegion(regionName);
-        cache.getRegion(regionName).destroyRegion();
-
-        when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(regionName));
-        new DestroyRegion().execute(context);
-
-        Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
-        assertThat(metadataRegion.containsKey(regionName), equalTo(false));
-    }
-
-    /* If no metadata entry, region wasn't created by Dynamic Region Management
-     * and so not valid to delete via Dynamic Region Management.
-     */
-    @Test
-    public void executeDestroysLeavesRegionIfMetadataMissing() throws Exception {
-        createRegion(regionName);
-        Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
-        metadataRegion.destroy(regionName);
-
-        when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(regionName));
-        new DestroyRegion().execute(context);
-
-        verify(resultSender).lastResult(false);
-    }
-
-    @Test
-    public void executeDestroyWithNullArgs() {
+    public void executeCreateWithNullArgs() {
 		expectedException.expect(RuntimeException.class);
-	    expectedException.expectMessage("One argument required in list");
+	    expectedException.expectMessage("Two arguments required in list");
 
         when(context.getResultSender()).thenReturn(resultSender);
         when(context.getArguments()).thenReturn(null);
-        new DestroyRegion().execute(context);
+        new CreateRegion().execute(context);
     }
     
     @Test
-    public void executeDestroyWithWrongTypeArgs() {
+    public void executeCreateWithWrongTypeArgs() {
 		expectedException.expect(RuntimeException.class);
-	    expectedException.expectMessage("One argument required in list");
+	    expectedException.expectMessage("Two arguments required in list");
 
         when(context.getResultSender()).thenReturn(resultSender);
         when(context.getArguments()).thenReturn(new String("hello"));
-        new DestroyRegion().execute(context);
+        new CreateRegion().execute(context);
     }
     
     @Test
-    public void executeDestroyWithWrongEmbeddedTypeArgs() {
+    public void executeCreateWithWrongEmbeddedTypeArgsFirst() {
 		expectedException.expect(RuntimeException.class);
 	    expectedException.expectMessage("Region name must be non-empty String");
 
+	    PdxInstance regionOptions = JSONFormatter.fromJSON("{}");
+	    
         when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(Integer.MAX_VALUE));
-        new DestroyRegion().execute(context);
+        when(context.getArguments()).thenReturn(Arrays.asList(Integer.MAX_VALUE, regionOptions));
+        new CreateRegion().execute(context);
     }
     
     @Test
-    public void executeDestroyWithNullEmbeddedTypeArgs() {
+    public void executeCreateWithWrongEmbeddedTypeArgsSecond() {
+		expectedException.expect(RuntimeException.class);
+	    expectedException.expectMessage("Second argument should be PdxInstance");
+
+        when(context.getResultSender()).thenReturn(resultSender);
+        when(context.getArguments()).thenReturn(Arrays.asList("hello", Integer.MIN_VALUE));
+        new CreateRegion().execute(context);
+    }
+    
+    @Test
+    public void executeCreateWithNullEmbeddedTypeArgsFirst() {
 		expectedException.expect(RuntimeException.class);
 	    expectedException.expectMessage("Region name must be non-empty String");
 
+	    PdxInstance regionOptions = JSONFormatter.fromJSON("{}");
+
         when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList((Object)null));
-        new DestroyRegion().execute(context);
+        when(context.getArguments()).thenReturn(Arrays.asList((Object)null, regionOptions));
+        new CreateRegion().execute(context);
     }
     
     @Test
-    public void executeDestroyWithInvalidEmbeddedTypeArgs() {
+    public void executeCreateWithNullEmbeddedTypeArgsSecond() {
+		expectedException.expect(RuntimeException.class);
+	    expectedException.expectMessage("Second argument should be PdxInstance");
+
+        when(context.getResultSender()).thenReturn(resultSender);
+        when(context.getArguments()).thenReturn(Arrays.asList("hello", (Object)null));
+        new CreateRegion().execute(context);
+    }
+    
+    @Test
+    public void executeCreateWithInvalidEmbeddedTypeArgs() {
 		expectedException.expect(RuntimeException.class);
 	    expectedException.expectMessage("Region name must be non-empty String");
 
+	    PdxInstance regionOptions = JSONFormatter.fromJSON("{}");
+
         when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(""));
-        new DestroyRegion().execute(context);
+        when(context.getArguments()).thenReturn(Arrays.asList("", regionOptions));
+        new CreateRegion().execute(context);
     }
     
     @Test
-    public void executeDestroyWithEmptyListArgs() {
+    public void executeCreateWithEmptyListArgs() {
 		expectedException.expect(RuntimeException.class);
-	    expectedException.expectMessage("One argument required in list");
+	    expectedException.expectMessage("Two arguments required in list");
 
         when(context.getResultSender()).thenReturn(resultSender);
         when(context.getArguments()).thenReturn(new ArrayList<String>());
-        new DestroyRegion().execute(context);
+        new CreateRegion().execute(context);
     }
 
     @Test
-    public void executeDestroyWithOverfullListArgs() {
+    public void executeCreateWithOverfullListArgs() {
 		expectedException.expect(RuntimeException.class);
-	    expectedException.expectMessage("One argument required in list");
+	    expectedException.expectMessage("Two arguments required in list");
 
     	List<String> args = new ArrayList<>();
     	args.add("one");
     	args.add("two");
+    	args.add("three");
     	
         when(context.getResultSender()).thenReturn(resultSender);
         when(context.getArguments()).thenReturn(args);
-        new DestroyRegion().execute(context);
+        new CreateRegion().execute(context);
     }
     
     @Test
-    public void executeDestroyFailsForSubRegions() {
+    public void executeCreateFailsForSubRegions() {
     	String targetRegionName = regionName + Region.SEPARATOR_CHAR + regionName;
 
     	expectedException.expect(RuntimeException.class);
 	    expectedException.expectMessage("Region name '" + targetRegionName + "' cannot include reserved char '/'");
 
+	    PdxInstance regionOptions = JSONFormatter.fromJSON("{}");
+
         when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(targetRegionName));
-        new DestroyRegion().execute(context);
+        when(context.getArguments()).thenReturn(Arrays.asList(targetRegionName, regionOptions));
+        new CreateRegion().execute(context);
     }
     
     @Test
-    public void executeDestroyFailsForPeriodCharacter() {
+    public void executeCreateFailsForPeriodCharacter() {
     	String targetRegionName = regionName + '.' + regionName;
     	
 		expectedException.expect(RuntimeException.class);
 	    expectedException.expectMessage("Region name '" + targetRegionName + "' cannot include reserved char '.'");
 
+	    PdxInstance regionOptions = JSONFormatter.fromJSON("{}");
+
         when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(targetRegionName));
-        new DestroyRegion().execute(context);
+        when(context.getArguments()).thenReturn(Arrays.asList(targetRegionName, regionOptions));
+        new CreateRegion().execute(context);
     }
+    
 
     private void createRegion(String name) {
         Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
@@ -271,4 +273,5 @@ public class DestroyRegionTest {
         assertThat(cache.getRegion(name), notNullValue());
         assertThat(metadataRegion.containsKey(name), equalTo(true));
     }
+
 }

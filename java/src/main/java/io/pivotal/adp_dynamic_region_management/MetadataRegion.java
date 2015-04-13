@@ -23,15 +23,15 @@ public class MetadataRegion {
         return metaRegion;
     }
     
-    public static void validateRegionName(String regionName) throws Exception {
+    public static void validateRegionName(Object regionName) throws Exception {
 
-    	if(regionName==null || regionName.length()==0) {
-    		throw new Exception("Region name cannot be empty");
+    	if(regionName==null || !(regionName instanceof String) || ((String)regionName).length()==0) {
+    		throw new Exception("Region name must be non-empty String");
     	}
     	
     	for(char c : RESERVED_CHARS) {
-    		if(regionName.indexOf(c)>=0) {
-    			throw new Exception("Region name '" + regionName + "' cannot include reserved char '" + c + "'.");
+    		if(((String)regionName).indexOf(c)>=0) {
+    			throw new Exception("Region name '" + regionName + "' cannot include reserved char '" + c + "'");
     		}
     	}
     	
