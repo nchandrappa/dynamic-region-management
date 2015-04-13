@@ -52,6 +52,7 @@ public class CreateRegion implements Function, Declarable {
         new RegionOptionsValidator(regionOptions).validate();
        
         MetadataRegion.getMetadataRegion().put(regionName, regionOptions);
+        MetadataRegion.checkLimits();
 
         // the MetadataRegionCacheListener should fire synchronously for the previous put
 
