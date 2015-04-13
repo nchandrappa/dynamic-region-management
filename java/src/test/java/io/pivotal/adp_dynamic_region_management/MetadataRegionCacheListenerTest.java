@@ -3,6 +3,8 @@ package io.pivotal.adp_dynamic_region_management;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
 import org.hamcrest.Matchers;
@@ -117,6 +119,32 @@ public class MetadataRegionCacheListenerTest {
         listener.afterUpdate(event);
 
         assertThat(region.getAttributes().getCloningEnabled(), equalTo(true));
+    }
+
+    @Test
+    public void testAfterDestroy() throws Exception {
+        String regionName = getCurrentTestName();
+        String jsonString = "{\"server\": {}}";
+        PdxInstance regionConfig = JSONFormatter.fromJSON(jsonString);
+
+        when(event.getKey()).thenReturn(getCurrentTestName());
+        when(event.getNewValue()).thenReturn(regionConfig);
+
+        MetadataRegionCacheListener listener = new MetadataRegionCacheListener();
+
+        listener.afterCreate(event);
+
+        Region<?,?> region = cache.getRegion(getCurrentTestName());
+        assertNotNull("Must successfully create before destroying", region);
+
+        /* Destroy can be run twice, once when present and again once absent
+         */
+        for(int i=0; i<2; i++) {
+            listener.afterDestroy(event);
+            
+            region = cache.getRegion(getCurrentTestName());
+            assertNull("After destroy i==" + i, region);
+        }
     }
 
     private Region createRegion(String name) {
