@@ -251,18 +251,6 @@ public class DestroyRegionTest {
         new DestroyRegion().execute(context);
     }
     
-    @Test
-    public void executeDestroyFailsForPeriodCharacter() {
-    	String targetRegionName = regionName + '.' + regionName;
-    	
-		expectedException.expect(RuntimeException.class);
-	    expectedException.expectMessage("Region name '" + targetRegionName + "' cannot include reserved char '.'");
-
-        when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(targetRegionName));
-        new DestroyRegion().execute(context);
-    }
-
     private void createRegion(String name) {
         Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
         PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
