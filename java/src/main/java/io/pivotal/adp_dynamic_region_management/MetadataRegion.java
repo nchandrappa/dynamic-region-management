@@ -10,9 +10,10 @@ public class MetadataRegion {
     public static final int    REGION_COUNT_WARNING_LEVEL = 1000;
 
     /* Subregions are not yet supported.
-     * "." is used by OQL.
+     * 
+     * Space and full stop are allowed, means OQL needs escape with single quote.
      */
-    public static final char[] RESERVED_CHARS = { '.' , Region.SEPARATOR_CHAR };
+    public static final char[] RESERVED_CHARS = { Region.SEPARATOR_CHAR };
     
     public static String getName(){
     	return REGION_ATTRIBUTES_METADATA_REGION;

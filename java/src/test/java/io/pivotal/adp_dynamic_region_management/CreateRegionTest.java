@@ -250,21 +250,6 @@ public class CreateRegionTest {
         new CreateRegion().execute(context);
     }
     
-    @Test
-    public void executeCreateFailsForPeriodCharacter() {
-    	String targetRegionName = regionName + '.' + regionName;
-    	
-		expectedException.expect(RuntimeException.class);
-	    expectedException.expectMessage("Region name '" + targetRegionName + "' cannot include reserved char '.'");
-
-	    PdxInstance regionOptions = JSONFormatter.fromJSON("{}");
-
-        when(context.getResultSender()).thenReturn(resultSender);
-        when(context.getArguments()).thenReturn(Arrays.asList(targetRegionName, regionOptions));
-        new CreateRegion().execute(context);
-    }
-    
-
     private void createRegion(String name) {
         Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
         PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
