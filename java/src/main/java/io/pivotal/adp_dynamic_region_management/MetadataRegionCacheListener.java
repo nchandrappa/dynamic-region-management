@@ -111,11 +111,11 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 			proxyRegionFactory.setPoolName(DEFAULT_CLIENT_POOL_NAME);
 		}
         
-        logInfo("MetadataRegionCacheListener creating region named: " + regionName);
+        this.logWriter.fine("MetadataRegionCacheListener creating region named: " + regionName);
 
         try {
             Region<?,?> region = proxyRegionFactory.create(regionName);
-            logInfo("MetadataRegionCacheListener created: " + region);
+            this.logWriter.fine("MetadataRegionCacheListener created: " + region);
         } catch (RegionExistsException e) {
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
         }
