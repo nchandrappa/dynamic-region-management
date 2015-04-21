@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,6 +17,10 @@ import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.cache.RegionEvent;
 import com.gemstone.gemfire.cache.RegionExistsException;
 import com.gemstone.gemfire.cache.RegionFactory;
+import com.gemstone.gemfire.cache.client.ClientCache;
+import com.gemstone.gemfire.cache.client.ClientCacheFactory;
+import com.gemstone.gemfire.cache.client.ClientRegionFactory;
+import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
 import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
 import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
@@ -31,6 +34,11 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 	private static String RECOVERY_DELAY_FIELD = "recoveryDelay";
 	private static String STARTUP_RECOVERY_DELAY_FIELD = "startupRecoveryDelay";
 	
+	private static final String DEFAULT_CLIENT_POOL_NAME = "myPool";
+	private static final String DEFAULT_CLIENT_REGION_TYPE = "PROXY";
+	private static ClientRegionFactory<?,?> proxyRegionFactory = null;
+
+	private static boolean isClient;
     private Cache cache;
     private LogWriter logWriter;
     private DistributionPolicy distributionPolicy = null;
@@ -39,6 +47,13 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 
     public MetadataRegionCacheListener() {
         this.cache = CacheFactory.getAnyInstance();
+        try {
+        	// This throws an exception if not a client cache.
+        	ClientCacheFactory.getAnyInstance();
+        	isClient = true;
+        } catch (IllegalStateException e) {
+        	isClient = false;
+        }
         this.logWriter = this.cache.getLogger();
     }
 
@@ -67,6 +82,47 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
      * an error will be sufficient.
      */
     private void createRegion(String regionName, PdxInstance pdxInstance) {
+        if(isClient) {
+        	createRegionOnClient(regionName, pdxInstance);
+        } else {
+        	createRegionOnServer(regionName, pdxInstance);
+        }
+    }
+    
+    private void createRegionOnClient(String regionName, PdxInstance pdxInstance) {
+        PdxInstance clientOptions = (PdxInstance) pdxInstance.getField("client");
+        String poolName = null;
+        String type = null;
+        
+        if(clientOptions!=null) {
+        	poolName = (String) clientOptions.getField("poolName");
+        	type = (String) clientOptions.getField("type");
+        }
+
+        if(!DEFAULT_CLIENT_POOL_NAME.equals(poolName) &&
+           !DEFAULT_CLIENT_REGION_TYPE.equals(type)) {
+			throw new RuntimeException("Client region type '" + (type==null?"<omitted>":type) 
+								    + "' poolName '" + (type==null?"<omitted>":poolName) 
+								    + "' not implemented yet");
+		}
+        
+		if(proxyRegionFactory==null) {
+			proxyRegionFactory = ((ClientCache)cache).createClientRegionFactory(ClientRegionShortcut.PROXY);
+			proxyRegionFactory.setPoolName(DEFAULT_CLIENT_POOL_NAME);
+		}
+        
+        logInfo("MetadataRegionCacheListener creating region named: " + regionName);
+
+        try {
+            Region<?,?> region = proxyRegionFactory.create(regionName);
+            logInfo("MetadataRegionCacheListener created: " + region);
+        } catch (RegionExistsException e) {
+            logInfo("Unable to create region `" + regionName + "`, because it already exists.");
+        }
+
+    }
+    
+    private void createRegionOnServer(String regionName, PdxInstance pdxInstance) {
         PdxInstance serverOptions = (PdxInstance) pdxInstance.getField("server");
         
         // enforce overrides by setting server options here
@@ -96,13 +152,13 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         }
         
         RegionOptionsFactory regionOptionsFactory = new RegionOptionsFactory(serverOptions, distributionPolicy);
-        RegionFactory regionFactory = regionOptionsFactory.getRegionFactory();
+        RegionFactory<?,?> regionFactory = regionOptionsFactory.getRegionFactory();
 
         
         logInfo("MetadataRegionCacheListener creating region named: " + regionName);
 
         try {
-            Region region = regionFactory.create(regionName);
+            Region<?,?> region = regionFactory.create(regionName);
             logInfo("MetadataRegionCacheListener created: " + region);
         } catch (RegionExistsException e) {
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
@@ -115,7 +171,11 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     	Region<?,?> region = cache.getRegion(regionName);
     	if(region!=null) {
             logInfo("MetadataRegionCacheListener deleting region named: " + regionName);
-    		region.destroyRegion();
+            if(isClient) {
+        		region.localDestroyRegion();
+            } else {
+        		region.destroyRegion();
+            }
     	} else {
     		if(this.logWriter.warningEnabled()) {
     			this.logWriter.warning("Unable to delete region '" + regionName + "', because it does not exist");
@@ -134,7 +194,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     	String className = properties.getProperty("distributionPolicyClass");
     	if (className != null){
     		try {
-    			Class clazz = Class.forName(className);
+    			Class<?> clazz = Class.forName(className);
     			this.distributionPolicy = (DistributionPolicy) clazz.newInstance();
     			this.distributionPolicy.init(properties);
     		} catch(ClassNotFoundException x){
