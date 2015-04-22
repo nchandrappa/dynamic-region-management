@@ -1,4 +1,4 @@
-#Release Notes 0.3.2#
+#Release Notes 0.3.4#
 Addresses undesirable interaction with security framework that results
 in a deadlock during startup when security, gateway senders and dynamic
 region management are all present.
