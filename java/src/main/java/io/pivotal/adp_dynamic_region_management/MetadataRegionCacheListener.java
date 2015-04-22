@@ -44,22 +44,13 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         createRegion(event.getKey(), event.getNewValue());
     }
 
-    @Override
-    public void afterRegionCreate(RegionEvent<String,PdxInstance> event) {
-        Region<String,PdxInstance> region = event.getRegion();
-        ArrayList<String> keys = new ArrayList<String>(500);
-        keys.addAll(region.keySet());
-        Collections.sort(keys);
-        for (String regionName : keys) {
-            createRegion(regionName, region.get(regionName));
-        }
-    }
 
     @Override
     public void afterUpdate(EntryEvent<String, PdxInstance> event) {
     }
 
-    private void createRegion(String regionName, PdxInstance pdxInstance) {
+    //TODO make this private - not doing it now because it was tested this way
+    public void createRegion(String regionName, PdxInstance pdxInstance) {
         PdxInstance serverOptions = (PdxInstance) pdxInstance.getField("server");
         
         // enforce overrides by setting server options here
