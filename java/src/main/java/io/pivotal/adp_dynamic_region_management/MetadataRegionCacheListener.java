@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gemstone.gemfire.LogWriter;
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.Declarable;
@@ -31,12 +32,14 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 	private static String STARTUP_RECOVERY_DELAY_FIELD = "startupRecoveryDelay";
 	
     private Cache cache;
+    private LogWriter logWriter;
     private DistributionPolicy distributionPolicy = null;
     private int redundancyRecoveryDelay = Integer.MIN_VALUE; //indicates not set
     private int startupRedundancyRecoveryDelay = Integer.MIN_VALUE; //indicates not set
 
     public MetadataRegionCacheListener() {
         this.cache = CacheFactory.getAnyInstance();
+        this.logWriter = this.cache.getLogger();
     }
 
     @Override
@@ -48,9 +51,17 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     @Override
     public void afterUpdate(EntryEvent<String, PdxInstance> event) {
     }
-
-    //TODO make this private - not doing it now because it was tested this way
-    public void createRegion(String regionName, PdxInstance pdxInstance) {
+    
+	/*
+	* Create region may be called in an event handler or in the cache initializer.
+    * It throws exceptions.  If it is called in the cache initializer the exception
+    * would abort the startup process, which is the intended behavior.  If it is 
+    * called in the CacheListener, the exception will be silently ignored, which
+    * is harmless.
+    * 
+    * package scope since its called from the CacheInitializer
+	*/
+    void createRegion(String regionName, PdxInstance pdxInstance) {
         PdxInstance serverOptions = (PdxInstance) pdxInstance.getField("server");
         
         // enforce overrides by setting server options here
@@ -72,10 +83,10 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 	        		partitionAttributes.put(STARTUP_RECOVERY_DELAY_FIELD, startupRedundancyRecoveryDelay);
 	
 	        	serverOptionsJSON = mapper.writeValueAsString(root);
-	        	CacheFactory.getAnyInstance().getLogger().info("Server options have been overridden - effective options are now: " + serverOptionsJSON);
+	        	logInfo("Server options have been overridden - effective options are now: " + serverOptionsJSON);
 	        	serverOptions = JSONFormatter.fromJSON(serverOptionsJSON);
         	} catch ( IOException x) {
-        		CacheFactory.getAnyInstance().getLogger().severe("error while applying server side overrides to region defintions", x);
+        		this.logWriter.severe("error while applying server side overrides to region defintions", x);
         		throw new RuntimeException("error while applying server side overrides to region defintions", x);
         	}
         }
@@ -97,11 +108,20 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 
     @Override
     public void afterDestroy(EntryEvent<String, PdxInstance> event) {
-        cache.getRegion(event.getKey()).destroyRegion();
+    	String regionName = event.getKey();
+    	Region<?,?> region = cache.getRegion(regionName);
+    	if(region!=null) {
+            logInfo("MetadataRegionCacheListener deleting region named: " + regionName);
+    		region.destroyRegion();
+    	} else {
+    		if(this.logWriter.warningEnabled()) {
+    			this.logWriter.warning("Unable to delete region '" + regionName + "', because it does not exist");
+    		}
+    	}
     }
 
     private void logInfo(String message) {
-        this.cache.getLogger().info(message);
+		this.logWriter.info(message);
     }
 
     public void init(Properties properties) {

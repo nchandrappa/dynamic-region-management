@@ -11,8 +11,9 @@ import com.gemstone.gemfire.cache.execute.Function;
 import com.gemstone.gemfire.cache.execute.FunctionContext;
 
 public class DestroyRegion implements Function, Declarable {
+	private static final long serialVersionUID = 1L;
 
-    public DestroyRegion() {
+	public DestroyRegion() {
     }
 
     @Override
@@ -24,12 +25,18 @@ public class DestroyRegion implements Function, Declarable {
         return true;
     }
 
-    @Override
+	@Override
     public void execute(FunctionContext context) {
         try {
-            List arguments = (List) context.getArguments();
-            String regionName = (String) arguments.get(0);
-            boolean result = destroyRegion(regionName);
+        	Object arguments = context.getArguments();
+            if(arguments==null || !(arguments instanceof List) || ((List<?>)arguments).size()!=1) {
+            	throw new Exception("One argument required in list");
+            } 
+
+            Object regionName = ((List<?>) arguments).get(0);
+            MetadataRegion.validateRegionName(regionName);
+            
+            boolean result = destroyRegion((String)regionName);
             context.getResultSender().lastResult(result);
         } catch (Exception exception) {
             sendStrippedException(context, exception);
