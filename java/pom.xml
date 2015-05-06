@@ -36,6 +36,13 @@
 			<id>gemfire-repository</id>
 			<name>Gemfire Repository</name>
 			<url>http://dist.gemstone.com/maven/release</url>
+       			<releases>
+            			<enabled>true</enabled>
+                		<updatePolicy>never</updatePolicy>
+            		</releases>
+            		<snapshots>
+            			<enabled>false</enabled>
+            		</snapshots>
 		</repository>
 	</repositories>
 
