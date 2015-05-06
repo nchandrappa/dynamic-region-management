@@ -138,6 +138,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 	        	serverOptions = JSONFormatter.fromJSON(serverOptionsJSON);
         	} catch ( IOException x) {
         		this.logWriter.severe("error while applying server side overrides to region defintions", x);
+        		throw new RuntimeException("error while applying server side overrides to region defintions", x);
         	}
         }
         
@@ -152,6 +153,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
             logInfo("MetadataRegionCacheListener created: " + region);
         } catch (RegionExistsException e) {
             logInfo("Unable to create region `" + regionName + "`, because it already exists.");
+            throw e;
         }
     }
 
@@ -177,9 +179,6 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 		this.logWriter.info(message);
     }
 
-    /* Errors here indicate the server side configuration is wrong, and
-     * therefore it is appropriate to throw an exception.
-     */
     public void init(Properties properties) {
     	String className = properties.getProperty("distributionPolicyClass");
     	if (className != null){
