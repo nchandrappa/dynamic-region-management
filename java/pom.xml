@@ -3,14 +3,14 @@
 
 	<groupId>io.pivotal</groupId>
 	<artifactId>adp-dynamic-region-management</artifactId>
-	<version>0.3.6</version>
+	<version>0.3.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>adp-dynamic-region-management</name>
 
 	<scm>
 		<connection>${adp-dynamic-region-management.scm.url}</connection>
-  	  <tag>adp-dynamic-region-management-0.3.6</tag>
+  	  <tag>HEAD</tag>
   </scm>
 
 	<properties>
