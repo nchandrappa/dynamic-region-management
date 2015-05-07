@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE cache PUBLIC
+  "-//GemStone Systems, Inc.//GemFire Declarative Caching 8.0//EN"
+  "http://www.gemstone.com/dtd/cache8_0.dtd">
+
+<cache>
+
+	<gateway-sender id="REMOTE" parallel="false" 
+		remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" disk-store-name="myDiskStore" enable-batch-conflation="true" enable-persistence="true" />
+
+	<gateway-receiver start-port="${GATEWAY_RECEIVER_START_PORT}" end-port="${GATEWAY_RECEIVER_END_PORT}"/>
+
+	<disk-store name="myDiskStore" />
+	<pdx read-serialized="true" persistent="true" disk-store-name="myDiskStore"/>
+
+	<region name="__regionAttributesMetadata" refid="REPLICATE_PERSISTENT">
+		<region-attributes gateway-sender-ids="REMOTE" enable-gateway="true" disk-store-name="myDiskStore">
+			<cache-listener>
+				<class-name>io.pivotal.adp_dynamic_region_management.MetadataRegionCacheListener</class-name>
+				<parameter name="distributionPolicyClass">
+					<string>io.pivotal.adp_dynamic_region_management.BasicDistributionPolicy</string>
+				</parameter>
+				<parameter name="GLOBAL_DISTRIBUTION_POLICY">
+					<string>REMOTE</string>
+				</parameter>
+				<parameter name="REGIONAL_DISTRIBUTION_POLICY">
+					<string>REMOTE</string>
+				</parameter>
+				<parameter name="DEFAULT_DISTRIBUTION_POLICY">
+					<string>GLOBAL</string>
+				</parameter>
+				<parameter name="STARTUP_REDUNDANCY_RECOVERY_DELAY">
+					<string>0</string>
+				</parameter>
+				<parameter name="FAILURE_REDUNDANCY_RECOVERY_DELAY">
+					<string>-1</string>
+				</parameter>
+			</cache-listener>
+		</region-attributes>
+	</region>
+	<function-service>
+		<function>
+			<class-name>io.pivotal.adp_dynamic_region_management.CreateRegion</class-name>
+		</function>
+		<function>
+			<class-name>io.pivotal.adp_dynamic_region_management.DestroyRegion</class-name>
+		</function>
+		<function>
+			<class-name>io.pivotal.adp_dynamic_region_management.TestFunction</class-name>
+		</function>
+	</function-service>
+</cache>
