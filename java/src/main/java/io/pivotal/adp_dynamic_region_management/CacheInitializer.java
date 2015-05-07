@@ -26,6 +26,7 @@ public class CacheInitializer implements Declarable {
 		int gatewayReceiverEndPort = Integer.parseInt(System.getProperty("GATEWAY_RECEIVER_END_PORT"));
 		
 		Cache cache = CacheFactory.getAnyInstance();
+		LogWriter log = cache.getLogger();
 		//TODO don't hard code this
 		Region<String,PdxInstance> region = cache.getRegion("__regionAttributesMetadata");
 		CacheListener<String,PdxInstance> cacheListeners[] = region.getAttributes().getCacheListeners();
@@ -36,7 +37,19 @@ public class CacheInitializer implements Declarable {
         keys.addAll(region.keySet());
         Collections.sort(keys);
         for (String regionName : keys) {
-            cl.createRegion(regionName, region.get(regionName));
+        	try {
+        		/* Validate the metadata. 
+        		 * It should only be created via this API so always be correct, but it's not impossible
+        		 * that manual attempts are made via GFSH, or that the format will change and the old
+        		 * contents will be invalid
+        		 */
+                MetadataRegion.validateRegionName(regionName);
+                MetadataRegion.validateRegionOptions(regionName, region.get(regionName));
+                cl.createRegion(regionName, region.get(regionName));
+        	} catch (Exception exception) {
+        		// An init() method has to catch the exception, although letting it fail would be better
+        		log.error("Create region failure for '" + (regionName==null?"NULL":regionName) + "'", exception);
+        	}
         }
         
         StartupConductorThread startupConductor 

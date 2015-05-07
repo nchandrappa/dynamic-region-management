@@ -32,9 +32,7 @@ public class CreateRegion implements Function, Declarable {
             MetadataRegion.validateRegionName(regionName);
 
             Object regionOptions = ((List<?>) arguments).get(1);
-            if(regionOptions==null || !(regionOptions instanceof PdxInstance)) {
-            	throw new Exception("Second argument should be PdxInstance");
-            } 
+            MetadataRegion.validateRegionOptions(regionName.toString(), regionOptions);
 
             boolean status = createOrRetrieveRegion((String)regionName, (PdxInstance)regionOptions);
             context.getResultSender().lastResult(status);

@@ -72,6 +72,15 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
      * an error will be sufficient.
      */
     public void createRegion(String regionName, PdxInstance pdxInstance) {
+    	
+    	try {
+        	MetadataRegion.validateRegionName(regionName);
+        	MetadataRegion.validateRegionOptions(regionName, pdxInstance);
+    	} catch (Exception exception) {
+    		// An init() method has to catch the exception, although letting it fail would be better
+    		CacheFactory.getAnyInstance().getLogger().error("Create region failure for '" + (regionName==null?"NULL":regionName) + "'", exception);
+    	}
+
         if(isClient) {
         	createRegionOnClient(regionName, pdxInstance);
         } else {

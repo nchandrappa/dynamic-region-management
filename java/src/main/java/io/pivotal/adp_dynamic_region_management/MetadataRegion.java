@@ -54,7 +54,15 @@ public class MetadataRegion {
     			throw new Exception("Region name '" + regionName + "' cannot include reserved char '" + c + "'");
     		}
     	}
-    	
-    	
     }
+
+	public static void validateRegionOptions(String regionName, Object regionOptions) throws Exception {
+	    if(regionOptions==null) {
+	    	throw new Exception("Region name '" + regionName + "' options cannot be null");
+	    }
+	    if(!(regionOptions instanceof PdxInstance)) {
+	    	throw new Exception("Region name '" + regionName + "' options should be PdxInstance not " + regionOptions.getClass().getCanonicalName());
+	    } 
+	}
+    
 }
