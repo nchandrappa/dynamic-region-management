@@ -9,6 +9,8 @@ npm-debug.log
 .classpath
 .project
 .settings/
+**/pom.xml.releaseBackup
+release.properties
 java/build/
 log/
 target/
