@@ -58,10 +58,10 @@ public class MetadataRegion {
 
 	public static void validateRegionOptions(String regionName, Object regionOptions) throws Exception {
 	    if(regionOptions==null) {
-	    	throw new Exception("Region name '" + regionName + "' options cannot be null");
+	    	throw new Exception("Region name '" + regionName + "', value cannot be null");
 	    }
 	    if(!(regionOptions instanceof PdxInstance)) {
-	    	throw new Exception("Region name '" + regionName + "' options should be PdxInstance not " + regionOptions.getClass().getCanonicalName());
+	    	throw new Exception("Region name '" + regionName + "', value should be PdxInstance not " + regionOptions.getClass().getCanonicalName());
 	    } 
 	}
     

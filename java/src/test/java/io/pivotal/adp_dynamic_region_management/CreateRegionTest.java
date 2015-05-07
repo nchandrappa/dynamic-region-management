@@ -170,7 +170,7 @@ public class CreateRegionTest {
     @Test
     public void executeCreateWithWrongEmbeddedTypeArgsSecond() {
 		expectedException.expect(RuntimeException.class);
-	    expectedException.expectMessage("Second argument should be PdxInstance");
+	    expectedException.expectMessage("Region name 'hello', value should be PdxInstance not java.lang.Integer");
 
         when(context.getResultSender()).thenReturn(resultSender);
         when(context.getArguments()).thenReturn(Arrays.asList("hello", Integer.MIN_VALUE));
@@ -192,7 +192,7 @@ public class CreateRegionTest {
     @Test
     public void executeCreateWithNullEmbeddedTypeArgsSecond() {
 		expectedException.expect(RuntimeException.class);
-	    expectedException.expectMessage("Second argument should be PdxInstance");
+	    expectedException.expectMessage("Region name 'hello', value cannot be null");
 
         when(context.getResultSender()).thenReturn(resultSender);
         when(context.getArguments()).thenReturn(Arrays.asList("hello", (Object)null));
