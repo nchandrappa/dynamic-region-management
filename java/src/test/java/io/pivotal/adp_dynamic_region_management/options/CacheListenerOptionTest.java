@@ -1,22 +1,23 @@
 package io.pivotal.adp_dynamic_region_management.options;
 
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionFactory;
-import com.gemstone.gemfire.pdx.JSONFormatter;
-import com.gemstone.gemfire.pdx.PdxInstance;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import io.pivotal.adp_dynamic_region_management.CacheSingleton;
 import io.pivotal.adp_dynamic_region_management.FakeCacheListener;
 import io.pivotal.adp_dynamic_region_management.RegionOptionsFactory;
 import io.pivotal.adp_dynamic_region_management.RegionOptionsInvalidException;
+
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestName;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
+import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.RegionFactory;
+import com.gemstone.gemfire.pdx.JSONFormatter;
+import com.gemstone.gemfire.pdx.PdxInstance;
 
 public class CacheListenerOptionTest {
     @BeforeClass
