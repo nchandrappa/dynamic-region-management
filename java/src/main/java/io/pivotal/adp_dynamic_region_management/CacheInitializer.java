@@ -1,6 +1,7 @@
 package io.pivotal.adp_dynamic_region_management;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
@@ -17,9 +18,13 @@ import com.gemstone.gemfire.cache.wan.GatewaySender;
 import com.gemstone.gemfire.pdx.PdxInstance;
 
 public class CacheInitializer implements Declarable {
+	private static final String PROPERTIES_FILE_NAME = "adp_dynamic_region_management.properties";
+	private static final String PROJECT_ARTIFACTID_PROPERTY = "project.artifactId";
+	private static final String PROJECT_VERSION_PROPERTY = "project.version";
 
 	@Override
 	public void init(Properties props) {
+		
 		//TODO - better error checking
 		int cacheServerPort = Integer.parseInt(props.getProperty("cacheServerPort"));
 		int gatewayReceiverStartPort = Integer.parseInt(System.getProperty("GATEWAY_RECEIVER_START_PORT"));
@@ -27,6 +32,9 @@ public class CacheInitializer implements Declarable {
 		
 		Cache cache = CacheFactory.getAnyInstance();
 		LogWriter log = cache.getLogger();
+		
+		this.listVersion(log);
+		
 		//TODO don't hard code this
 		Region<String,PdxInstance> region = cache.getRegion("__regionAttributesMetadata");
 		CacheListener<String,PdxInstance> cacheListeners[] = region.getAttributes().getCacheListeners();
@@ -58,7 +66,35 @@ public class CacheInitializer implements Declarable {
         startupConductor.start();
 	}
 
-//	public static class GatewaySenderStarterThread extends Thread {
+	/* Obtain the module build version from the properties file populated by Maven
+	 * and log it.
+	 * This is useful for debugging as the Jar files are loaded by symbolic link,
+	 * so the version appended to the file name is not known.
+	 */
+    private void listVersion(LogWriter log) {
+    	try (InputStream inputStream = this.getClass().getResourceAsStream(PROPERTIES_FILE_NAME);)
+    	{
+    		Properties properties = new Properties();
+    		properties.load(inputStream);
+    		
+    		String projectArtifactId = properties.getProperty(PROJECT_ARTIFACTID_PROPERTY,"");
+    		String projectVersion = properties.getProperty(PROJECT_VERSION_PROPERTY,"");
+
+    		if(projectArtifactId.length()==0||projectVersion.length()==0) {
+    			log.error(PROJECT_ARTIFACTID_PROPERTY + "/" + PROJECT_VERSION_PROPERTY + " pairing not specified.");
+    		} else {
+    			log.info("Using " + projectArtifactId + "-" + projectVersion + ".jar");
+    		}
+    		
+    	} catch (IOException exception) {
+    		log.error("Cannot load " + PROPERTIES_FILE_NAME, exception);
+    	} catch (Exception exception) {
+    		log.severe(exception);
+    	}
+		
+	}
+
+	//	public static class GatewaySenderStarterThread extends Thread {
 //
 //		private GatewaySender sender;
 //
