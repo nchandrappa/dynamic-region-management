@@ -24,6 +24,7 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
 import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
 import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
+import io.pivotal.adp_dynamic_region_management.options.CloningEnabledOption;
 
 public class MetadataRegionCacheListener extends CacheListenerAdapter<String,PdxInstance>  implements Declarable {
 
@@ -62,9 +63,15 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         createRegion(event.getKey(), event.getNewValue());
     }
 
-
     @Override
     public void afterUpdate(EntryEvent<String, PdxInstance> event) {
+        PdxInstance regionOptions = event.getNewValue();
+        PdxInstance serverOptions = (PdxInstance) regionOptions.getField("server");
+
+        String regionName = event.getKey();
+        Region region = CacheFactory.getAnyInstance().getRegion(regionName);
+
+        new CloningEnabledOption(serverOptions).updateRegion(region);
     }
 
     /*  Don't throw exceptions to a listener event method, as they're
@@ -120,7 +127,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         }
 
     }
-    
+
     private void createRegionOnServer(String regionName, PdxInstance pdxInstance) {
         PdxInstance serverOptions = (PdxInstance) pdxInstance.getField("server");
         
