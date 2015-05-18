@@ -63,7 +63,6 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         createRegion(event.getKey(), event.getNewValue());
     }
 
-
     @Override
     public void afterUpdate(EntryEvent<String, PdxInstance> event) {
         PdxInstance regionOptions = event.getNewValue();
@@ -128,7 +127,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         }
 
     }
-    
+
     private void createRegionOnServer(String regionName, PdxInstance pdxInstance) {
         PdxInstance serverOptions = (PdxInstance) pdxInstance.getField("server");
         
