@@ -13,7 +13,7 @@ public class MetadataRegion {
      * 
      * Space and full stop are allowed, means OQL needs escape with single quote.
      */
-    public static final char[] RESERVED_CHARS = { Region.SEPARATOR_CHAR };
+    private static final char[] RESERVED_CHARS = { Region.SEPARATOR_CHAR };
     
     public static String getName(){
     	return REGION_ATTRIBUTES_METADATA_REGION;

@@ -1,8 +1,6 @@
 package io.pivotal.adp_dynamic_region_management;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Properties;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,7 +12,6 @@ import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.Declarable;
 import com.gemstone.gemfire.cache.EntryEvent;
 import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionEvent;
 import com.gemstone.gemfire.cache.RegionExistsException;
 import com.gemstone.gemfire.cache.RegionFactory;
 import com.gemstone.gemfire.cache.client.ClientCache;
@@ -39,7 +36,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 	private static final String DEFAULT_CLIENT_REGION_TYPE = "PROXY";
 	private static ClientRegionFactory<?,?> proxyRegionFactory = null;
 
-	private static boolean isClient;
+	private static boolean client;
     private Cache cache;
     private LogWriter logWriter;
     private DistributionPolicy distributionPolicy = null;
@@ -51,9 +48,9 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         try {
         	// This throws an exception if not a client cache.
         	ClientCacheFactory.getAnyInstance();
-        	isClient = true;
+        	setClient(true);
         } catch (IllegalStateException e) {
-        	isClient = false;
+        	setClient(false);
         }
         this.logWriter = this.cache.getLogger();
     }
@@ -69,7 +66,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         PdxInstance serverOptions = (PdxInstance) regionOptions.getField("server");
 
         String regionName = event.getKey();
-        Region region = CacheFactory.getAnyInstance().getRegion(regionName);
+        Region<?,?> region = CacheFactory.getAnyInstance().getRegion(regionName);
 
         new CloningEnabledOption(serverOptions).updateRegion(region);
     }
@@ -88,7 +85,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     		CacheFactory.getAnyInstance().getLogger().error("Create region failure for '" + (regionName==null?"NULL":regionName) + "'", exception);
     	}
 
-        if(isClient) {
+        if(isClient()) {
         	createRegionOnClient(regionName, pdxInstance);
         } else {
         	createRegionOnServer(regionName, pdxInstance);
@@ -179,7 +176,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     	Region<?,?> region = cache.getRegion(regionName);
     	if(region!=null) {
             logInfo("MetadataRegionCacheListener deleting region named: " + regionName);
-            if(isClient) {
+            if(isClient()) {
         		region.localDestroyRegion();
             } else {
         		region.destroyRegion();
@@ -228,4 +225,13 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     		}
     	}
     }
+
+	public static boolean isClient() {
+		return client;
+	}
+
+	public static void setClient(boolean client) {
+		MetadataRegionCacheListener.client = client;
+	}
+
 }
