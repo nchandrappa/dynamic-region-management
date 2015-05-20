@@ -6,6 +6,7 @@ import com.gemstone.gemfire.cache.execute.FunctionContext;
 import com.gemstone.gemfire.cache.execute.ResultSender;
 import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,11 +36,11 @@ public class UpdateRegionTest {
     FunctionContext context;
 
     @Mock
-    ResultSender resultSender;
+    ResultSender<Object> resultSender;
 
     @Before
     public void setUp() {
-        regionName = getClass().getName() + name.getMethodName();
+        regionName = getClass().getSimpleName() + name.getMethodName();
         cache = CacheSingleton.getCache();
         GemfireFunctionHelper.rethrowFunctionExceptions(resultSender);
     }
@@ -111,7 +112,7 @@ public class UpdateRegionTest {
 
         new UpdateRegion().execute(context);
 
-        Region region = cache.getRegion(regionName);
+        Region<Object,Object> region = cache.getRegion(regionName);
         assertThat(region.getAttributes().getCloningEnabled(), equalTo(true));
     }
 
@@ -130,7 +131,7 @@ public class UpdateRegionTest {
 
         new UpdateRegion().execute(context);
 
-        Region metadataRegion = MetadataRegion.getMetadataRegion();
+        Region<String,PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
 
         PdxInstance updatedRegionOptions = (PdxInstance) metadataRegion.get(regionName);
         PdxInstance updatedServerOptions = (PdxInstance) updatedRegionOptions.getField("server");
@@ -162,7 +163,7 @@ public class UpdateRegionTest {
 
         new UpdateRegion().execute(context);
 
-        Region metadataRegion = MetadataRegion.getMetadataRegion();
+        Region<String,PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
 
         PdxInstance updatedRegionOptions = (PdxInstance) metadataRegion.get(regionName);
         PdxInstance updatedServerOptions = (PdxInstance) updatedRegionOptions.getField("server");
@@ -176,6 +177,9 @@ public class UpdateRegionTest {
                 "{" +
                         "  \"client\": {" +
                         "    \"type\": \"CACHING_PROXY\"" +
+                        "  }" +
+                        " , " + 
+                        "  \"server\": {" +
                         "  }" +
                         "}");
         createRegion(regionName, originalRegionOptions);
@@ -192,7 +196,7 @@ public class UpdateRegionTest {
 
         new UpdateRegion().execute(context);
 
-        Region metadataRegion = MetadataRegion.getMetadataRegion();
+        Region<String,PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
 
         PdxInstance updatedRegionOptions = (PdxInstance) metadataRegion.get(regionName);
         PdxInstance updatedServerOptions = (PdxInstance) updatedRegionOptions.getField("server");

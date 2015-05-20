@@ -94,6 +94,6 @@ public class RegionIdleTimeOptionTest {
     }
 
     private String getCurrentTestName() {
-        return name.getMethodName() + "RegionIdleTime";
+        return getClass().getSimpleName() + name.getMethodName() + "RegionIdleTime";
     }
 }

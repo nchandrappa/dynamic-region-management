@@ -154,6 +154,6 @@ public class PartitionAttributesOptionTest {
     }
 
     private String getCurrentTestName() {
-        return getClass().getName() + name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 }

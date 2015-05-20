@@ -253,7 +253,7 @@ public class DestroyRegionTest {
     
     private void createRegion(String name) {
         Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
-        PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
+        PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } , \"server\": {} }");
         metadataRegion.put(name, regionOptions);
         // region is created by the CacheListener
         assertThat(cache.getRegion(name), notNullValue());

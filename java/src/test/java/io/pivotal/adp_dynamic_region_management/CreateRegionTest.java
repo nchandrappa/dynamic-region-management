@@ -54,7 +54,11 @@ public class CreateRegionTest {
         regionName = getClass().getSimpleName() + name.getMethodName();
         cache = CacheSingleton.getCache();
         GemfireFunctionHelper.rethrowFunctionExceptions(resultSender);
-        validRegionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
+        validRegionOptions = JSONFormatter.fromJSON("{" +
+        		"\"client\": { \"type\": \"CACHING_PROXY\" }" +
+        		"," +
+        		"\"server\": { \"type\": \"PARTITION\" }" +
+        		" }");
     }
 
     @Test
@@ -252,7 +256,7 @@ public class CreateRegionTest {
     
     private void createRegion(String name) {
         Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
-        PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
+        PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } , \"server\": {} }");
         metadataRegion.put(name, regionOptions);
         // region is created by the CacheListener
         assertThat(cache.getRegion(name), notNullValue());

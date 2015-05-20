@@ -39,6 +39,6 @@ public class IgnoreJTAOptionTest {
     }
 
     private String getCurrentTestName() {
-        return name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 }

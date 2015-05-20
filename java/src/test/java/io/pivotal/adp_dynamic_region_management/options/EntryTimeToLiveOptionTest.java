@@ -95,6 +95,6 @@ public class EntryTimeToLiveOptionTest {
     }
 
     private String getCurrentTestName() {
-        return name.getMethodName() + "EntryTimeToLive";
+        return getClass().getSimpleName() + name.getMethodName() + "EntryTimeToLive";
     }
 }

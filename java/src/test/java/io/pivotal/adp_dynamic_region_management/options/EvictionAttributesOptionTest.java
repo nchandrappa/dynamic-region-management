@@ -281,6 +281,6 @@ public class EvictionAttributesOptionTest {
     }
 
     private String getCurrentTestName() {
-        return getClass().getName() + name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 }

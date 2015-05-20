@@ -87,6 +87,6 @@ public class CompressorOptionTest {
         assertThat(new CompressorOption(serverOptions).isAnOption(), equalTo(true));
     }
     private String getCurrentTestName() {
-        return getClass().getName() + name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 }

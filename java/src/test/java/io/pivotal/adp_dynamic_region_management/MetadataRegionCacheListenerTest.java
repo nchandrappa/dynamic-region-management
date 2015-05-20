@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -62,8 +61,9 @@ public class MetadataRegionCacheListenerTest {
     }
 
     @Test
-    public void testAfterCreatePassesDefaultTypeToRegionWhenServerIsNotPresent() throws Exception {
-        String jsonString = "{}";
+    public void testAfterCreatePassesDefaultTypeToRegionWhenServerIsIncomplete() throws Exception {
+        String jsonString = "{ \"server\": {}  }";
+
         PdxInstance regionConfig = JSONFormatter.fromJSON(jsonString);
 
         when(event.getKey()).thenReturn(getCurrentTestName());
@@ -95,7 +95,6 @@ public class MetadataRegionCacheListenerTest {
         assertThat(region.getAttributes().getDataPolicy(), equalTo(DataPolicy.NORMAL));
     }
 
-    @Ignore
     @Test
     public void testAfterUpdateAppliesUpdatesToRegion() throws Exception {
         String regionName = getCurrentTestName();
@@ -148,7 +147,11 @@ public class MetadataRegionCacheListenerTest {
 
     private Region<?,?> createRegion(String name) {
         Region<String, PdxInstance> metadataRegion = MetadataRegion.getMetadataRegion();
-        PdxInstance regionOptions = JSONFormatter.fromJSON("{ \"client\": { \"type\": \"CACHING_PROXY\" } }");
+        PdxInstance regionOptions = JSONFormatter.fromJSON("{ " +
+        		" \"client\" : { \"type\": \"CACHING_PROXY\" }"  +
+        		"," +
+        		" \"server\" : { }"  +
+        		"}");
         metadataRegion.put(name, regionOptions);
         // region is created by the CacheListener
         Region<?,?> region = cache.getRegion(name);
@@ -159,6 +162,6 @@ public class MetadataRegionCacheListenerTest {
 
 
     private String getCurrentTestName() {
-        return name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 }
