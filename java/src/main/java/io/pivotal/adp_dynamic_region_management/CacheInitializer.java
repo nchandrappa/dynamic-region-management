@@ -35,6 +35,8 @@ public class CacheInitializer implements Declarable {
 		
 		this.listVersion(log);
 		
+		//TODO See https://trello.com/c/ouzyKFJx/84-cacheinitializer-reliance-on-metadata-region
+		
 		//TODO don't hard code this
 		Region<String,PdxInstance> region = cache.getRegion("__regionAttributesMetadata");
 		CacheListener<String,PdxInstance> cacheListeners[] = region.getAttributes().getCacheListeners();

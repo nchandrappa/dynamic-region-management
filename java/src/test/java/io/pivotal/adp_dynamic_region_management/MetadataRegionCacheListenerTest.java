@@ -23,6 +23,11 @@ import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
 
+/**
+ *<P>Tests that use a real Gemfire cache.</P>
+ *<P>See {@link io.pivotal.adp_dynamic_region_management.MetadataRegionCacheListenerMockTest}
+ *for ones where the cache is faked to give specific errors that rarely occur.</P>
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class MetadataRegionCacheListenerTest {
 

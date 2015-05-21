@@ -59,19 +59,19 @@ public class MetadataRegionKeyTest {
         MockitoAnnotations.initMocks(this);
 
         // Mockito doesn't set static fields, and PowerMock is more trouble than value
-        Field clientCacheField = MetadataRegion.class.getDeclaredField("cache");
-        clientCacheField.setAccessible(true);
-        this.previousCache = (Cache)clientCacheField.get(null);
-        clientCacheField.set(null, cache);
+        Field cacheField = MetadataRegion.class.getDeclaredField("cache");
+        cacheField.setAccessible(true);
+        this.previousCache = (Cache)cacheField.get(null);
+        cacheField.set(null, cache);
     }
 
 	@After
 	public void tearDown() throws Exception {
 		Mockito.verifyNoMoreInteractions(this.cache,this.logWriter,this.region);
 
-        Field clientCacheField = MetadataRegion.class.getDeclaredField("cache");
-        clientCacheField.setAccessible(true);
-        clientCacheField.set(null, this.previousCache);
+        Field cacheField = MetadataRegion.class.getDeclaredField("cache");
+        cacheField.setAccessible(true);
+        cacheField.set(null, this.previousCache);
 	}
 
 	@Test
