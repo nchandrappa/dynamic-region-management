@@ -1,5 +1,6 @@
 package io.pivotal.adp_dynamic_region_management;
 
+import static io.pivotal.adp_dynamic_region_management.ExceptionHelpers.sendStrippedException;
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
 import com.gemstone.gemfire.cache.Declarable;
@@ -8,11 +9,16 @@ import com.gemstone.gemfire.cache.execute.Function;
 import com.gemstone.gemfire.cache.execute.FunctionContext;
 import com.gemstone.gemfire.pdx.PdxInstance;
 import io.pivotal.adp_dynamic_region_management.options.CloningEnabledOption;
+import io.pivotal.adp_dynamic_region_management.options.EntryIdleTimeOption;
+import io.pivotal.adp_dynamic_region_management.options.RegionOption;
+import io.pivotal.adp_dynamic_region_management.options.UpdateableRegionOption;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import static io.pivotal.adp_dynamic_region_management.ExceptionHelpers.sendStrippedException;
 
 public class UpdateRegion implements Function, Declarable {
     private Cache cache;
@@ -39,7 +45,7 @@ public class UpdateRegion implements Function, Declarable {
             boolean result = updateRegion(regionName, regionOptions);
             context.getResultSender().lastResult(result);
         } catch (Exception exception) {
-            sendStrippedException(context, exception);
+        	sendStrippedException(context, exception);
         }
     }
 
@@ -58,12 +64,22 @@ public class UpdateRegion implements Function, Declarable {
         return false;
     }
 
-    private boolean updateRegion(String regionName, PdxInstance regionOptions) throws RegionOptionsInvalidException {
+    private static final List<Class> optionClasses = Arrays.asList(
+            (Class) CloningEnabledOption.class,
+            (Class) EntryIdleTimeOption.class);
+
+    private boolean updateRegion(String regionName, PdxInstance regionOptions) throws RegionOptionsInvalidException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         Region region = this.cache.getRegion(regionName);
 
         if (region != null) {
             PdxInstance serverOptions = (PdxInstance) regionOptions.getField("server");
-            new CloningEnabledOption(serverOptions).updateMetadataRegion(regionName);
+
+            for (Class optionClass : optionClasses) {
+                RegionOption option = (RegionOption) ConstructorUtils.invokeConstructor(optionClass, serverOptions);
+                if(option.isAnOption()) {
+                    ((UpdateableRegionOption) option).updateMetadataRegion(regionName);
+                }
+            }
 
             return true;
         }
