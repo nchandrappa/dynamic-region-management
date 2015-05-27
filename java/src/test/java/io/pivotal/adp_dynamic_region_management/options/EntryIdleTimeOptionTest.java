@@ -95,6 +95,6 @@ public class EntryIdleTimeOptionTest {
     }
 
     private String getCurrentTestName() {
-        return name.getMethodName() + "EntryIdleTime";
+        return getClass().getSimpleName() + name.getMethodName() + "EntryIdleTime";
     }
 }

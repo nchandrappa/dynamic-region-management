@@ -87,7 +87,7 @@ public class CacheWriterOptionTest {
         assertThat(new CacheWriterOption(serverOptions).isAnOption(), equalTo(true));
     }
     private String getCurrentTestName() {
-        return getClass().getName() + name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 
 }

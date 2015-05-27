@@ -135,6 +135,6 @@ public class MembershipAttributesOptionTest {
     }
 
     private String getCurrentTestName() {
-        return getClass().getName() + name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 }

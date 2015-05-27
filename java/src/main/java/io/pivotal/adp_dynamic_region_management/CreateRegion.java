@@ -15,7 +15,7 @@ import static io.pivotal.adp_dynamic_region_management.ExceptionHelpers.sendStri
 public class CreateRegion implements Function, Declarable {
 	private static final long serialVersionUID = 1L;
 
-    private final Cache cache;
+    private final transient Cache cache;
 
     public CreateRegion() {
         this.cache = CacheFactory.getAnyInstance();

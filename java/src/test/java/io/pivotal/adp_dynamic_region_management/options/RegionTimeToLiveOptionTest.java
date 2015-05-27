@@ -95,6 +95,6 @@ public class RegionTimeToLiveOptionTest {
     }
 
     private String getCurrentTestName() {
-        return name.getMethodName() + "RegionTimeToLive";
+        return getClass().getSimpleName() + name.getMethodName() + "RegionTimeToLive";
     }
 }

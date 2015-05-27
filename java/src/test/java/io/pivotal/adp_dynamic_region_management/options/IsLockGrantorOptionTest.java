@@ -41,6 +41,6 @@ public class IsLockGrantorOptionTest {
     }
 
     private String getCurrentTestName() {
-        return name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 }

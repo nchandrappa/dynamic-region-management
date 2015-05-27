@@ -87,7 +87,7 @@ public class CacheLoaderOptionTest {
         assertThat(new CacheLoaderOption(serverOptions).isAnOption(), equalTo(true));
     }
     private String getCurrentTestName() {
-        return getClass().getName() + name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 
 }

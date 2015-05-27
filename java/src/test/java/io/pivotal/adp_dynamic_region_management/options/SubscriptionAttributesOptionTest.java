@@ -87,7 +87,7 @@ public class SubscriptionAttributesOptionTest {
     }
 
     private String getCurrentTestName() {
-        return getClass().getName() + name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 
 

@@ -39,6 +39,6 @@ public class LoadFactorOptionTest {
     }
 
     private String getCurrentTestName() {
-        return name.getMethodName();
+        return getClass().getSimpleName() + name.getMethodName();
     }
 }

@@ -1,8 +1,6 @@
 package io.pivotal.adp_dynamic_region_management;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Properties;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -11,12 +9,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gemstone.gemfire.LogWriter;
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.CacheWriterException;
 import com.gemstone.gemfire.cache.Declarable;
 import com.gemstone.gemfire.cache.EntryEvent;
 import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionEvent;
 import com.gemstone.gemfire.cache.RegionExistsException;
 import com.gemstone.gemfire.cache.RegionFactory;
+import com.gemstone.gemfire.cache.TimeoutException;
 import com.gemstone.gemfire.cache.client.ClientCache;
 import com.gemstone.gemfire.cache.client.ClientCacheFactory;
 import com.gemstone.gemfire.cache.client.ClientRegionFactory;
@@ -24,6 +23,7 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
 import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
 import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
+
 import io.pivotal.adp_dynamic_region_management.options.CloningEnabledOption;
 
 public class MetadataRegionCacheListener extends CacheListenerAdapter<String,PdxInstance>  implements Declarable {
@@ -39,7 +39,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
 	private static final String DEFAULT_CLIENT_REGION_TYPE = "PROXY";
 	private static ClientRegionFactory<?,?> proxyRegionFactory = null;
 
-	private static boolean isClient;
+	private static boolean client;
     private Cache cache;
     private LogWriter logWriter;
     private DistributionPolicy distributionPolicy = null;
@@ -51,9 +51,9 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         try {
         	// This throws an exception if not a client cache.
         	ClientCacheFactory.getAnyInstance();
-        	isClient = true;
+        	setClient(true);
         } catch (IllegalStateException e) {
-        	isClient = false;
+        	setClient(false);
         }
         this.logWriter = this.cache.getLogger();
     }
@@ -69,7 +69,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         PdxInstance serverOptions = (PdxInstance) regionOptions.getField("server");
 
         String regionName = event.getKey();
-        Region region = CacheFactory.getAnyInstance().getRegion(regionName);
+        Region<?,?> region = CacheFactory.getAnyInstance().getRegion(regionName);
 
         new CloningEnabledOption(serverOptions).updateRegion(region);
     }
@@ -88,7 +88,7 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     		CacheFactory.getAnyInstance().getLogger().error("Create region failure for '" + (regionName==null?"NULL":regionName) + "'", exception);
     	}
 
-        if(isClient) {
+        if(isClient()) {
         	createRegionOnClient(regionName, pdxInstance);
         } else {
         	createRegionOnServer(regionName, pdxInstance);
@@ -173,24 +173,78 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
         }
     }
 
-    @Override
     public void afterDestroy(EntryEvent<String, PdxInstance> event) {
-    	String regionName = event.getKey();
+        destroyRegion(event.getKey());
+    }
+
+    public void destroyRegion(final String regionName) {
+        if(isClient()) {
+        	destroyRegionOnClient(regionName);
+        } else {
+        	destroyRegionOnServer(regionName);
+        }
+    }
+    
+    private void destroyRegionOnClient(final String regionName) {
+    	/* Destroy may fail to start or may fail to finish, but for different
+    	 * reasons on client and server.
+    	 * 
+		 * On the client, the region to be deleted should be there to begin
+		 * with. It is possible that it would be missing, for instance, if
+		 * the region had been deleted manually via the API. If so, log this
+		 * as an error, as bypassing the dynamic region management service
+		 * to manipulate regions under its control should be discouraged.
+		 * 
+		 * The destroy once started should complete, and should only fail
+		 * if there is an internal error. Do not catch any such errors,
+		 * allow this to be visible in the calling chain in the logs.
+    	 */
     	Region<?,?> region = cache.getRegion(regionName);
     	if(region!=null) {
             logInfo("MetadataRegionCacheListener deleting region named: " + regionName);
-            if(isClient) {
-        		region.localDestroyRegion();
-            } else {
-        		region.destroyRegion();
-            }
+    		region.localDestroyRegion();
     	} else {
-    		if(this.logWriter.warningEnabled()) {
-    			this.logWriter.warning("Unable to delete region '" + regionName + "', because it does not exist");
-    		}
+    		this.logWriter.error("Unable to delete region '" + regionName + "', because it does not exist");
     	}
     }
 
+    private void destroyRegionOnServer(final String regionName) {
+    	/* Destroy may fail to start or may fail to finish, but for different
+    	 * reasons on client and server.
+    	 * 
+    	 * On the server, the destroy uses Region.destroyRegion() which is
+    	 * a distributed operation. So it's very likely that one of the
+    	 * other servers may have deleted the region just at the very
+    	 * instant this method starts. So if the region is missing it's
+    	 * very trivial, so give a minor log message.
+		 * 
+		 * Once the destroy starts, it may collide with another started
+		 * for the same region on a different server at the exact same
+		 * time, or it may fail due to errors in the API. Try to separate
+		 * these out in terms of which get minor log messages and which
+		 * are worth a higher log level message.
+		 */
+     	Region<?,?> region = cache.getRegion(regionName);
+    	if(region!=null) {
+            logInfo("MetadataRegionCacheListener deleting region named: " + regionName);
+            try {
+            	region.destroyRegion();
+            } catch (CacheWriterException|TimeoutException exception1) {
+            	if(this.logWriter.errorEnabled()) {
+            		this.logWriter.error("Distributed Region.destroyRegion() failed on this node for region '" + regionName + "'", exception1);
+            	}
+            } catch (Exception exception2) {
+            	if(this.logWriter.fineEnabled()) {
+            		this.logWriter.fine("Distributed Region.destroyRegion() failed on this node for region '" + regionName + "'", exception2);
+            	}
+            }
+    	} else {
+    		if(this.logWriter.fineEnabled()) {
+    			this.logWriter.fine("Distributed Region.destroyRegion() failed on this node for region '" + regionName + "', because it does not exist");
+    		}
+    	}
+    }
+    
     private void logInfo(String message) {
 		this.logWriter.info(message);
     }
@@ -228,4 +282,13 @@ public class MetadataRegionCacheListener extends CacheListenerAdapter<String,Pdx
     		}
     	}
     }
+
+	public static boolean isClient() {
+		return client;
+	}
+
+	public static void setClient(boolean client) {
+		MetadataRegionCacheListener.client = client;
+	}
+
 }
