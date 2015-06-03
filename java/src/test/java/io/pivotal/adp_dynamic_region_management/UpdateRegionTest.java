@@ -6,7 +6,6 @@ import com.gemstone.gemfire.cache.execute.FunctionContext;
 import com.gemstone.gemfire.cache.execute.ResultSender;
 import com.gemstone.gemfire.pdx.JSONFormatter;
 import com.gemstone.gemfire.pdx.PdxInstance;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +39,7 @@ public class UpdateRegionTest {
 
     @Before
     public void setUp() {
-        regionName = getClass().getSimpleName() + name.getMethodName();
+    	regionName = getClass().getSimpleName() + name.getMethodName();
         cache = CacheSingleton.getCache();
         GemfireFunctionHelper.rethrowFunctionExceptions(resultSender);
     }
@@ -201,6 +200,49 @@ public class UpdateRegionTest {
         PdxInstance updatedRegionOptions = (PdxInstance) metadataRegion.get(regionName);
         PdxInstance updatedServerOptions = (PdxInstance) updatedRegionOptions.getField("server");
         assertThat((Boolean) updatedServerOptions.getField("cloningEnabled"), equalTo(true));
+    }
+
+    @Test
+    public void updatesEntryIdleTimeout() throws Exception {
+        PdxInstance originalRegionOptions = JSONFormatter.fromJSON(
+                "{" +
+                        "  \"client\": {" +
+                        "    \"type\": \"CACHING_PROXY\"" +
+                        "  }," +
+                        "  \"server\": {" +
+                        "    \"concurrencyChecksEnabled\": false, " +
+                        "    \"isLockGrantor\": true, " +
+                        "    \"scope\": \"GLOBAL\"," +
+                        "    \"regionTimeToLive\": {\"timeout\": 1234}, " +
+                        "    \"regionIdleTime\": {\"timeout\": 2345}, " +
+                        "    \"entryTimeToLive\": {\"timeout\": 3456}, " +
+                        "    \"entryIdleTime\": {\"timeout\": 4567} " +
+                        "  }" +
+                        "}");
+        createRegion(regionName, originalRegionOptions);
+
+        when(context.getResultSender()).thenReturn(resultSender);
+
+        PdxInstance regionOptions = JSONFormatter.fromJSON(
+                "{" +
+                        "  \"server\": {" +
+                        "    \"entryIdleTime\": {" +
+                        "       \"action\": \"DESTROY\", " +
+                        "       \"timeout\": 12345" +
+                        "     }" +
+                        "  }" +
+                        "}");
+        when(context.getArguments()).thenReturn(Arrays.asList(regionName, regionOptions));
+
+        new UpdateRegion().execute(context);
+
+        Region metadataRegion = MetadataRegion.getMetadataRegion();
+
+        PdxInstance updatedRegionOptions = (PdxInstance) metadataRegion.get(regionName);
+        PdxInstance updatedServerOptions = (PdxInstance) updatedRegionOptions.getField("server");
+        PdxInstance entryIdleTime = (PdxInstance) updatedServerOptions.getField("entryIdleTime");
+        assertThat((String) entryIdleTime.getField("action"), equalTo("DESTROY"));
+        assertThat((Integer) entryIdleTime.getField("timeout"), equalTo(12345));
     }
 
     private void createRegion(String name) {

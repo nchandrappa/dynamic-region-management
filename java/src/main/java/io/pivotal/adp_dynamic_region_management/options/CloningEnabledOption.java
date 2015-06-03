@@ -15,7 +15,8 @@ public class CloningEnabledOption extends RegionOption<Boolean> implements Updat
     }
 
     protected Boolean value() {
-        return (Boolean) serverOptions.getField(getFieldName());
+    	Boolean field = (Boolean) serverOptions.getField(getFieldName());
+    	return (field!=null ? field : false);
     }
 
     protected String getFieldName() {
