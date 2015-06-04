@@ -39,7 +39,7 @@ public class CacheInitializer implements Declarable {
 		
 		//TODO don't hard code this
 		Region<String,PdxInstance> region = cache.getRegion("__regionAttributesMetadata");
-		CacheListener<String,PdxInstance> cacheListeners[] = region.getAttributes().getCacheListeners();
+		CacheListener<String,PdxInstance>[] cacheListeners = region.getAttributes().getCacheListeners();
 		//TODO - in general, need to refactor so create region does not have to live in the cache listener
 		MetadataRegionCacheListener cl = (MetadataRegionCacheListener) cacheListeners[0];
 
