@@ -8,4 +8,75 @@
   </parent>
   <artifactId>adp-dynamic-region-managementDist</artifactId>
   <packaging>pom</packaging>
+
+  <dependencies>
+	<dependency>
+		<groupId>${project.groupId}</groupId>
+		<artifactId>adp-dynamic-region-managementClient</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>${project.groupId}</groupId>
+		<artifactId>adp-dynamic-region-managementServer</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+  </dependencies>
+    
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.5.4</version>
+				<configuration>
+					<tarLongFileMode>posix</tarLongFileMode>
+				</configuration>
+				<executions>
+					<!-- 
+					<execution>
+						<id>make-assembly-client</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assemblyClient.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					-->
+					<execution>
+						<id>make-assembly-server</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assemblyServer.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>com.google.code.echo-maven-plugin</groupId>
+				<artifactId>echo-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>echo</goal>
+						</goals>
+						<configuration>
+							<message>TODO: Refactor code in common module into client and server parts.</message>
+							<level>FAIL</level>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
