@@ -1,18 +1,26 @@
-*.class
+# Eclipse
+**/.classpath
+**/.project
+**/.settings
+
+# Gradle
+**/.gradle
+**/build
+
+# Maven
+**/target
+
+# maven-release-plugin
+**/pom.xml.releaseBackup
+**/release.properties
+
+# Misc
 *.gfs
 *.iml
 *.jar
 *.pyc
-.gradle
 npm-debug.log
-.vagrant/
-.classpath
-.project
-.settings/
-**/pom.xml.releaseBackup
-release.properties
-java/build/
+.vagrant
 log/
-target/
 node_modules/
 tmp/
