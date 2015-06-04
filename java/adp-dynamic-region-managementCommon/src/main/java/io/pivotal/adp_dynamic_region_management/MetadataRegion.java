@@ -1,7 +1,9 @@
 package io.pivotal.adp_dynamic_region_management;
 
 import com.gemstone.gemfire.LogWriter;
-import com.gemstone.gemfire.cache.*;
+import com.gemstone.gemfire.cache.Cache;
+import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.pdx.PdxInstance;
 
 public class MetadataRegion {

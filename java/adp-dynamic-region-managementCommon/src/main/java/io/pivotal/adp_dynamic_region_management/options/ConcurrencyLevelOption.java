@@ -1,6 +1,6 @@
 package io.pivotal.adp_dynamic_region_management.options;
 
-import com.gemstone.gemfire.cache.*;
+import com.gemstone.gemfire.cache.RegionFactory;
 import com.gemstone.gemfire.pdx.PdxInstance;
 
 public class ConcurrencyLevelOption extends RegionOption<Integer> {
