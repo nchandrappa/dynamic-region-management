@@ -72,7 +72,7 @@
 						</goals>
 						<configuration>
 							<message>TODO: Refactor code in common module into client and server parts.</message>
-							<level>FAIL</level>
+							<level>WARNING</level>
 						</configuration>
 					</execution>
 				</executions>
