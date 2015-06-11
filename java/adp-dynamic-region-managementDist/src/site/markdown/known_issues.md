@@ -1,5 +1,11 @@
 # Known Issues
 
+## Java client
+A Java client is not currently implemented, only a Native client (C++) for
+Node.js
+
+This has not been a requirement to date, but would be an easy addition.
+
 ## Efficiency
 Dynamic region management does not restrict the number of regions that can be
 created in a cluster.
@@ -68,6 +74,25 @@ and data events delivered for that region will be discarded.
 The region creation may also fail on the remote cluster if the region already exists,
 meaning data events would be delivered into a different (non-empty) region than the
 one intended.
+
+## Gateway/security interaction
+Gateway receivers are added via a cache initializer rather than in XML, to avoid a
+deadline in the start-up sequence handshaking gateway receivers and senders when
+security is present.
+
+This is an issue on Gemfire 8.0, but is believed to be corrected on Gemfire 8.1.
+Once validated, and assuming there are no other reasons to delay creating the
+receiver (such as waiting for all regions to exist), the configuration could
+revert to the simpler XML basis.
+
+## Disk stores
+The tested configuration uses the same disk store for persistent gateways, PDX,
+the metadata region and the dynamically created regions.
+
+It may be possible to use different diskstores, and this could be useful, for
+example, to clear gateway queues in test environments.
+
+This is untested.
 
 ## Cluster Configuration Service
 Gemfire releases from 8.0 onwards provide a "*Cluster Configuration Service*".

@@ -1,44 +1,10 @@
+# Implementation
+
 # TODO
 ```
 TO DO
 ```
 
-
-#Release Notes 0.3.4#
-Addresses undesirable interaction with security framework that results
-in a deadlock during startup when security, gateway senders and dynamic
-region management are all present.
-
-__You must make the following configuration changes in conjunction with this release__
-* add `--disable-default-server` to the cache server startup options
-* All gateway senders declared in cache.xml must be configured for "manual start"  (example below)
-
-    ```xml
-        <gateway-sender id="REMOTE" parallel="false" 
-            remote-distributed-system-id="${REMOTE_DISTRIBUTED_SYSTEM_ID}" enable-batch-conflation="true" 
-            enable-persistence="true" disk-store-name="GATEWAY_DISK_STORE" maximum-queue-memory="10" manual-start="true" />
-    ```
-
-* _the gateway receiver must be removed completely_
-* The following "-Ds" must be defined in the cache server start script (example below)
-
-    ```
-    --J=-DGATEWAY_RECEIVER_START_PORT=5001
-	--J=-DGATEWAY_RECEIVER_END_PORT=5009
-    --J=-DCACHE_SERVER_PORT=112233
-    ```
-
-* The `--server-port` option should be removed from the startup script if present
-* The following must be added to the bottom of cache.xml, beneath the function service
-
-    ```xml
-    <initializer>
-        <class-name>io.pivotal.adp_dynamic_region_management.CacheInitializer</class-name>
-		<parameter name="cacheServerPort">
-			<string>${CACHE_SERVER_PORT}</string>
-		</parameter>
-	</initializer>
-    ```
 
 
 

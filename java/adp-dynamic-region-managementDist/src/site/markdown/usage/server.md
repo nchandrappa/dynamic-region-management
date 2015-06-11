@@ -2,10 +2,59 @@
 There are three parts to the server-side configuration to use Dynamic Region Management.
 
 ## Start scripts
-####TODO
+The start-up scripts need the following amendments. Stop scripts do not need changed.
+
+### Cluster configuration
+The cluster configuration service should be disabled on all processes, servers __and__ locators.
+
+This is done with `--enable-cluster-configuration=false` for locators,
+and with `--use-cluster-configuration=false` for servers.
+
+The cluster configuration service runs on the locators, but clashes with Dynamic
+Region Management.
+
+### Server port
+On server scripts, the port option `--server-port=` should not be specified.
+
+The port is set later from a Java class.
+
+### Default server
+On server scripts, the flag `--disable-default-server` should be specified.
+
+This stops the server from becoming available until Dynamic Region Management has
+completed initialization and set the listener port.
+
+### System properties
+Three system properties should be provided to server scripts.
+
+```
+--J=-DCACHE_SERVER_PORT=
+--J=-DGATEWAY_RECEIVER_START_PORT=
+--J=-DGATEWAY_RECEIVER_END_PORT=
+```
+
+The cache server port is the port each JVM listens on for client connections. It
+should be unique per host.
+
+The gateway receiver start and end pairing define a range of ports that each server
+can listen on for incoming connections. Each server picks one unused port from the
+range, so if sufficient ports exist all servers can have the same start and end
+ports on a host.
 
 ## Classpath
-####TODO
+The Maven build process for Dynamic Region Management creates a single Jar file as part of the
+distribution bundle.
+
+This is found in the `java/adp-dynamic-region-managementDist/target` directory when the build
+completes successfully.
+
+The Jar file includes the text `server.jar` at the end, and will include the build version.
+
+For example, for build 0.3.7 the file would be `adp-dynamic-region-managementDist-0.3.7-server.jar`,
+for build 1.0.0 the file would be `adp-dynamic-region-managementDist-1.0.0-server.jar`, and
+so on.
+
+The file used needs to be present in the classpath for all servers in the cluster.
 
 ## "*cache.xml*" file
 Several sections need to be added to "*cache.xml*" file used by the servers. This will typically make up the

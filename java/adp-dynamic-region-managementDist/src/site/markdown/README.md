@@ -8,11 +8,11 @@
 
 [Gateways] (gateways.md)
 
-[Usage - Java Client] (usage/java_client.md)
+[Usage : Java Client] (usage/java_client.md)
 
-[Usage - Native Client] (usage/native_client.md)
+[Usage : Native Client] (usage/native_client.md)
 
-[Usage - Server] (usage/server.md)
+[Usage : Server] (usage/server.md)
 
 [Implementation] (implementation.md)
 
