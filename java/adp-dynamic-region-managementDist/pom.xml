@@ -59,6 +59,31 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pdf-plugin</artifactId>
+				<version>1.3</version>
+				<dependencies>
+					<dependency>
+                    	<groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-markdown</artifactId>
+                        <version>1.6</version>
+                	</dependency>
+                </dependencies>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>pdf</goal>
+						</goals>
+						<configuration>
+							<docDescriptor>src/site/pdf.xml</docDescriptor>
+							<includeReports>false</includeReports>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			
 			<plugin>
 				<groupId>com.google.code.echo-maven-plugin</groupId>
@@ -72,7 +97,7 @@
 						</goals>
 						<configuration>
 							<message>TODO: Refactor code in common module into client and server parts.</message>
-							<level>FAIL</level>
+							<level>WARNING</level>
 						</configuration>
 					</execution>
 				</executions>
