@@ -1,4 +1,5 @@
 #Release Notes 0.3.4#
+See [here](java/adp-dynamic-region-managementDist/src/site/markdown/test.md)
 Addresses undesirable interaction with security framework that results
 in a deadlock during startup when security, gateway senders and dynamic
 region management are all present.
