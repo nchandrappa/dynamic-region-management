@@ -14,16 +14,19 @@ Sub-regions are not currently supported. Without such namespaces, all region nam
 to be unique which can cause a clash for applications.
 
 With sub-regions, all regions for an application could be in an unique namespace.
+
 For example, "*wfn/employees*", "*wfn/organisations*".
 
-Certain region names such as "employees" are likely to be required for many applications. 
+Certain region names such as "*employees*" are likely to be required for many applications. 
 
 ## Naming restrictions
 Gemfire places no restrictions on region naming, except that the region separator character `/`
 cannot be used. Dynamic Region Management does not add further restrictions.
 
-This allows names to be used which should perhaps be rejected as logical duplicates. 
+This allows names to be used which should perhaps be rejected as logical duplicates.
+ 
 For example, both "*Customer List*", "*CustomerList*" and "*customerList*" could all exist.
+
 At the very least this will cause confusion, and need escaping in OQL.
 
 ## Server groups
