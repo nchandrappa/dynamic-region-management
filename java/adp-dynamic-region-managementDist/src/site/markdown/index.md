@@ -1,4 +1,6 @@
 # Documentation
 
 ## Index
-Todo
+
+[Objectives] (objectives.md)
+[Design] (design.md)

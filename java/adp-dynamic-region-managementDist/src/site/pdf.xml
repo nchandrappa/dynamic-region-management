@@ -9,8 +9,11 @@
   </meta>
 
   <toc name="Table of Contents">
+  	<!-- 
     <item name="README" ref="../../../../../../README.md"/>
-    <item name="Example" ref="test.md"/>
+  	 -->
+    <item name="Objectives" ref="objectives.md"/>
+    <item name="Design" ref="design.md"/>
   </toc>
 
   <cover>
