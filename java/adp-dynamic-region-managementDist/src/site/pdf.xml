@@ -14,7 +14,11 @@
   	 -->
     <item name="Objectives" ref="objectives.md"/>
     <item name="Design" ref="design.md"/>
-    
+    <item name="Gateways" ref="gateways.md"/>
+   	<item name="Usage : Java Client" ref="usage/java_client.md"/>
+    <item name="Usage : Native Client" ref="usage/native_client.md"/>
+    <item name="Usage : Server" ref="usage/server.md"/>
+    <item name="Implementation" ref="implementation.md"/>
     <item name="Known Issues" ref="known_issues.md"/>
   </toc>
 
