@@ -14,7 +14,7 @@ Sub-regions are not currently supported. Without such namespaces, all region nam
 to be unique which can cause a clash for applications.
 
 With sub-regions, all regions for an application could be in an unique namespace.
-For example, "wfn/employees", "wfn/organisations".
+For example, "*wfn/employees*", "*wfn/organisations*".
 
 Certain region names such as "employees" are likely to be required for many applications. 
 
@@ -65,9 +65,6 @@ and data events delivered for that region will be discarded.
 The region creation may also fail on the remote cluster if the region already exists,
 meaning data events would be delivered into a different (non-empty) region than the
 one intended.
-
-
-
 
 ## Cluster Configuration Service
 Gemfire releases from 8.0 onwards provide a "*Cluster Configuration Service*".
