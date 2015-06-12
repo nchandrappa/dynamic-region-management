@@ -1,17 +1,11 @@
 # Known Issues
 
-## Java client
-A Java client is not currently implemented, only a Native client (C++) for
-Node.js
-
-This has not been a requirement to date, but would be an easy addition.
-
 ## Efficiency
 Dynamic region management does not restrict the number of regions that can be
 created in a cluster.
 
 From an operational perspective, each region has an administration overhead -- for
-statistics and monitoring. Beyond a certain number, the regions will operate more
+statistics, monitoring, etc. Beyond a certain number, the regions will operate more
 efficiently in two clusters than one, but the logical relationship between regions
 is not visible to Gemfire.
 

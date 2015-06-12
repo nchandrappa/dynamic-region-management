@@ -17,3 +17,5 @@
 [Implementation] (implementation.md)
 
 [Known Issues] (known_issues.md)
+
+[Enhancements] (enhancements.md)

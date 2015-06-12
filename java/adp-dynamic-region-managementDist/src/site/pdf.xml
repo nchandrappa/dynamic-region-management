@@ -20,6 +20,7 @@
     <item name="Usage : Server" ref="usage/server.md"/>
     <item name="Implementation" ref="implementation.md"/>
     <item name="Known Issues" ref="known_issues.md"/>
+    <item name="Enhancements" ref="enhancements.md"/>
   </toc>
 
   <cover>
