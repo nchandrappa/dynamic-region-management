@@ -69,31 +69,39 @@ The region creation may also fail on the remote cluster if the region already ex
 meaning data events would be delivered into a different (non-empty) region than the
 one intended.
 
-## Gateway/security interaction
-Gateway receivers are added via a cache initializer rather than in XML, to avoid a
-deadline in the start-up sequence handshaking gateway receivers and senders when
-security is present.
+## Gateway default
+Region creation commands cannot specify the distribution policy
 
-This is an issue on Gemfire 8.0, but is believed to be corrected on Gemfire 8.1.
-Once validated, and assuming there are no other reasons to delay creating the
-receiver (such as waiting for all regions to exist), the configuration could
-revert to the simpler XML basis.
+This would be useful to do,
 
-## Disk stores
-The tested configuration uses the same disk store for persistent gateways, PDX,
-the metadata region and the dynamically created regions.
+```
+{"server": { "distributionPolicy": ["REGIONAL"] } 
+```
 
-It may be possible to use different diskstores, and this could be useful, for
-example, to clear gateway queues in test environments.
+If the distribution policy choice *LOCAL*, *REGIONAL* or *GLOBAL* cannot be specified,
+it will default to one of these and this will not suit all regions.
 
-This is untested.
+## Gateway sender
+Region creation commands can specify the gateway names directly.
 
-## Cluster Configuration Service
-Gemfire releases from 8.0 onwards provide a "*Cluster Configuration Service*".
-[Click here for details] (http://gemfire.docs.pivotal.io/latest/userguide/deploying/gfsh/gfsh_persist.html)
+For example,
 
-This duplicates much of the functionality of the Dynamic Region Management service.
+```
+{"server": { "gatewaySenderIds": ["ds2"] } 
+```
 
-It is worth investigating if the Cluster Configuration Service can replace some or
-all of the functionality of the Dynamic Region Management service, as this would
-reduce the maintenance requirement on bespoke code.
+This is incorrect as the gateway names usually differ from cluster to cluster in a
+network of clusters. For example, in cluster `ds1` the sender to cluster `ds2` is named `ds2`.
+In cluster `ds2` the sender to cluster `ds1` is named `ds1`.
+
+So, if the sender name is part of the region metadata, it will only work on some clusters,
+those which have gateways with the specified name.
+
+## XML Validation
+XML options are required to be consistent across all servers.
+
+For example, the parameters specifying the datacenters names for global and regional
+distribution via gateways should be consistent. Deviation would cause errors.
+
+This needs either to be centralized to a single copy or validated, to eliminate the
+chance for mis-configuration.
