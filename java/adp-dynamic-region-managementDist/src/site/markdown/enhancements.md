@@ -89,3 +89,18 @@ creation fail although the metadata would be persisted.
 
 ## Automated tests
 The amount of automated tests could be increased.
+
+## Update Region mechanism
+An outline implementation exists for changing the attributes of an existing
+region.
+
+This needs consideration if it is viable to allow regions to be modified
+while running, and augment or remove the implementation of region update
+accordingly.
+
+There are very few options that can be changed while the cluster runs, so
+it is unclear if there is any requirement to do so. Equally, changing the
+options for the next restart without immediately changing the target region
+may cause problems at restart, and would
+mean the runtime configuration in the metadata region would differ from
+the regions currently live.

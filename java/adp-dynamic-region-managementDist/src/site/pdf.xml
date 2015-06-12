@@ -21,6 +21,7 @@
     <item name="Implementation" ref="implementation.md"/>
     <item name="Known Issues" ref="known_issues.md"/>
     <item name="Enhancements" ref="enhancements.md"/>
+    <item name="Vagrant testing" ref="vagrant.md"/>
   </toc>
 
   <cover>

@@ -19,3 +19,5 @@
 [Known Issues] (known_issues.md)
 
 [Enhancements] (enhancements.md)
+
+[Vagrant testing] (vagrant.md)
