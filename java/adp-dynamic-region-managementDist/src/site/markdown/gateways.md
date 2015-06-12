@@ -70,7 +70,8 @@ type.
 Alternatively, the distribution policy can be specified.
 
 ```
-{ "server": { "type": "PARTITION", "gatewaySenderIds": ["REGIONAL"] }"
+{ "server": { "type": "PARTITION" ,
+              "gatewaySenderIds": ["REGIONAL"] }"
 ```
 
 __NOTE: This feature is currently being validated, and may not be

@@ -107,7 +107,9 @@ and is held as a JSON object.
 Each of the Gemfire attribues become JSON strings. For example,
 
 ```
-{ "local-max-memory":"512" , "recovery-delay":"-1", "startup-recovery-delay":"30" }
+{ "local-max-memory":"512" ,
+  "recovery-delay":"-1" ,
+  "startup-recovery-delay":"30" }
 ```
 
 ## Notes on Design
