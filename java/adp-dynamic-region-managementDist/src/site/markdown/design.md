@@ -41,20 +41,73 @@ more intuitive format than XML, and with better browser support.
 The following outlines the solution. For more detail see the [implementation] (implementation.md).
 
 ### Client REST wrapper
-#TODO invoke a function
+All interactions with Gemfire for Titanium use the "*node-gemfire*" module, which provides
+an HTTP based interface rather than requiring specialized Gemfire knowledge.
+
+One of the operations this supports is a "*CreateRegion*" command, which takes a region
+name as an argument. This results in the region being created immediately, being available
+for use, and being permanently stored in the configuration so that it will continue to
+exist nomatter how many times the cluster is restarted. 
+
+A counterpart "*DestroyRegion*" command is provide to remove a region should it no longer
+be required. To avoid clashes with the other applications that don't use Dynamic Region Management,
+the region deletion mechanism can only be used to delete regions that Dynamic Region
+Management originally created.
+
+### Security
+As Dynamic Region Management is implemented as a layer on top of standard Gemfire,
+no security can be bypassed.
+
+If security is enabled, any attempt to create, delete or access a region will be
+rejected if the wrong username/password combination is provided or if the username
+does not have the necessary access rights.
+
+### Two-step approach
+A two-step approach is taken to Dynamic Region Management, using a specification stage
+to drive a creation stage.
+
+#### Specification step - Metadata region
+The first step uses a hidden system region, named '__regionAttributesMetadata', to
+hold a permanent record of the dynamic regions that should exist and their
+configuration.
+
+Addition or removal of entries in this metadata region triggers the second
+step.
+
+#### Creation step - Event listeners
+Attached to the hidden system region holding the metadata is a cache listener.
+
+The cache listener is triggered by changes to the metadata. When an entry
+is added, the `afterCreate()` method is called in the cache listener and
+this responds by creating the region in the cluster with the attributes
+specified in the metadata.
+
+As this second step is triggered by the first step automatically the
+requirement (the metadata) and the actuality (the regions) should stay
+matching.
+
+#### Immediacy
+Implicit in this two-step approach is immediacy. As soon as regions are
+described in the metadata region they are created as real regions in
+the cluster. Similarly, when regions are removed from the metadata
+the corresponding real regions are removed from the cluster.
+
+This is different from changing a "*cache.xml*" file. Although the
+"*cache.xml*" file is essentially a metadata record, it is only
+read at start-up time even if it subsequently changes.
 
 ### Region request format
-#TODO some json goes here
+The format chosen for region creation requests is the format stored
+in the metadata region. Using one format throughout simplifies the
+handling.
 
-### Metadata region
-#TODO what it holds and why
+This format tries to hide as much Gemfire detail from the outside world,
+and is held as a JSON object.
 
-### Event listeners
-#TODO how these react to create regions on servers, or destroy
+Each of the Gemfire attribues become JSON strings. For example,
 
-# TODO
 ```
-TO DO
+{ "local-max-memory":"512" , "recovery-delay":"-1", "startup-recovery-delay":"30" }
 ```
 
 ## Notes on Design
