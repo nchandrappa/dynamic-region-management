@@ -1,0 +1,34 @@
+<document xmlns="http://maven.apache.org/DOCUMENT/1.0.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/DOCUMENT/1.0.1 http://maven.apache.org/xsd/document-1.0.1.xsd"
+  outputName="${project.parent.parent.name}">
+  
+  <!-- Output PDF file name specified by 'outputName' above -->
+  <meta>
+    <title>${project.parent.parent.name}</title>
+  </meta>
+
+  <toc name="Table of Contents">
+  	<!-- 
+    <item name="README" ref="../../../../../../README.md"/>
+  	 -->
+    <item name="Objectives" ref="objectives.md"/>
+    <item name="Design" ref="design.md"/>
+    <item name="Gateways" ref="gateways.md"/>
+   	<item name="Usage : Java Client" ref="usage/java_client.md"/>
+    <item name="Usage : Native Client" ref="usage/native_client.md"/>
+    <item name="Usage : Server" ref="usage/server.md"/>
+    <item name="Implementation" ref="implementation.md"/>
+    <item name="Known Issues" ref="known_issues.md"/>
+    <item name="Enhancements" ref="enhancements.md"/>
+    <item name="Vagrant testing" ref="vagrant.md"/>
+  </toc>
+
+  <cover>
+    <coverTitle>Dynamic Region Management</coverTitle>
+    <coverSubTitle>v. ${project.version}</coverSubTitle>
+    <coverType>Documentation</coverType>
+    <projectName>${project.parent.parent.name}</projectName>
+  </cover>
+  
+</document>
