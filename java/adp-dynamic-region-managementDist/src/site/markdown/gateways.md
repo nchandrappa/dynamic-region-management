@@ -71,10 +71,7 @@ Alternatively, the distribution policy can be specified.
 
 ```
 { "server": { "type": "PARTITION" ,
-              "gatewaySenderIds": ["REGIONAL"] }"
+              "distributionPolicy": "REGIONAL" }"
 ```
-
-__NOTE: This feature is currently being validated, and may not be
-fully implemented. See [Known Issues] (known_issues.md).__
 
 
