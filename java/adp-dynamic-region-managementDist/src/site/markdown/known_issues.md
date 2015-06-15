@@ -69,34 +69,6 @@ The region creation may also fail on the remote cluster if the region already ex
 meaning data events would be delivered into a different (non-empty) region than the
 one intended.
 
-## Gateway default
-Region creation commands cannot specify the distribution policy
-
-This would be useful to do,
-
-```
-{"server": { "distributionPolicy": ["REGIONAL"] } 
-```
-
-If the distribution policy choice *LOCAL*, *REGIONAL* or *GLOBAL* cannot be specified,
-it will default to one of these and this will not suit all regions.
-
-## Gateway sender
-Region creation commands can specify the gateway names directly.
-
-For example,
-
-```
-{"server": { "gatewaySenderIds": ["dc2"] } 
-```
-
-This is incorrect as the gateway names usually differ from cluster to cluster in a
-network of clusters. For example, in cluster `dc1` the sender to cluster `dc2` is named `dc2`.
-In cluster `dc2` the sender to cluster `dc1` is named `dc1`.
-
-So, if the sender name is part of the region metadata, it will only work on some clusters,
-those which have gateways with the specified name.
-
 ## XML Validation
 XML options are required to be consistent across all servers.
 
@@ -128,6 +100,14 @@ and therefore cannot be used.
 A region can be deleted on the servers, and still be known to the client
 briefly. If the client tries to use this region, the operation will fail.
 
+## "After Region" mechanism failures
+The `Region.clear()` operation on the metadata region would leave the
+cache in an inconsistent state. 
+
+The entries in the metadata region would be deleted, but their `afterDestroy()`
+event would not be triggered, so the corresponding dynamic regions would
+not be removed.
+
 ## Metadata distribution
 Metadata must be distributed globally, and this results in all regions
 specified in the metadata being created on all clusters.
@@ -139,5 +119,7 @@ This could cause confusion.
 If a region "*EOD*" is created as REGIONAL for the North America region, it would
 be created on all clusters although again data distribution would be not be to all.
 This would stop the European clusters from creating a region "*EOD*" with
-REGIONAL distribution as the region would already exist on those clusters.
+REGIONAL distribution as the region would already exist on those clusters. That
+could be a problem if North America required the "*EOD*" region to be non-persistent
+and Europe wanted it to be persistent.
 
