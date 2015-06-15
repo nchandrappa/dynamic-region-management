@@ -100,6 +100,14 @@ and therefore cannot be used.
 A region can be deleted on the servers, and still be known to the client
 briefly. If the client tries to use this region, the operation will fail.
 
+## "After Region" mechanism failures
+The `Region.clear()` operation on the metadata region would leave the
+cache in an inconsistent state. 
+
+The entries in the metadata region would be deleted, but their `afterDestroy()`
+event would not be triggered, so the corresponding dynamic regions would
+not be removed.
+
 ## Metadata distribution
 Metadata must be distributed globally, and this results in all regions
 specified in the metadata being created on all clusters.
@@ -111,5 +119,7 @@ This could cause confusion.
 If a region "*EOD*" is created as REGIONAL for the North America region, it would
 be created on all clusters although again data distribution would be not be to all.
 This would stop the European clusters from creating a region "*EOD*" with
-REGIONAL distribution as the region would already exist on those clusters.
+REGIONAL distribution as the region would already exist on those clusters. That
+could be a problem if North America required the "*EOD*" region to be non-persistent
+and Europe wanted it to be persistent.
 
