@@ -104,3 +104,15 @@ options for the next restart without immediately changing the target region
 may cause problems at restart, and would
 mean the runtime configuration in the metadata region would differ from
 the regions currently live.
+
+## GFSH invocation mechanism
+The arguments to `CreateRegion` and `DestroyRegion` are too complex to
+be invoked from GFSH, which could be useful for maintenance.
+
+`CreateRegion` could be extended to take the name of another region as
+an argument, rather than specify the attributes. That is, to take two
+`String` objects as arguments. The intention here is to create a new
+region with the same attributes as an existing region.
+
+`DestroyRegion` could be extended to tolerate a `String` as the argument,
+so that it could be invoked from GFSH.
