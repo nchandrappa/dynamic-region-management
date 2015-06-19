@@ -123,3 +123,5 @@ REGIONAL distribution as the region would already exist on those clusters. That
 could be a problem if North America required the "*EOD*" region to be non-persistent
 and Europe wanted it to be persistent.
 
+## Indexes
+Indexes cannot currently be specified when creating a region dynamically.
