@@ -116,3 +116,11 @@ region with the same attributes as an existing region.
 
 `DestroyRegion` could be extended to tolerate a `String` as the argument,
 so that it could be invoked from GFSH.
+
+## Logging
+Logging should be swapped from using Gemfire's default ``LogWriter``
+class to direct use of SLF4J or Log4J loggers, as these are more
+controllable.
+
+This would allow logging to be turned up and down at the class level,
+rather than at the JVM level.

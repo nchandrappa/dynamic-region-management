@@ -10,8 +10,7 @@
   <packaging>pom</packaging>
   
   <properties>
-    <!--  Client must be 8.0 until all clusters upgraded -->
-  	<gemfire.version>8.0.0</gemfire.version>
+  	<gemfire.version>8.1.0</gemfire.version>
   	<!--  Use same version as Gemfire bundles -->
   	<log4j2.version>2.1</log4j2.version>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -233,7 +232,7 @@
 		<dependency>
 			<groupId>com.gemstone.gemfire</groupId>
 			<artifactId>gemfire</artifactId>
-			<version>8.0.0</version>
+			<version>${gemfire.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
