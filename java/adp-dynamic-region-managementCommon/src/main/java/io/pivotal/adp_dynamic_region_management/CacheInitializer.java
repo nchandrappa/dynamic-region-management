@@ -149,7 +149,9 @@ public class CacheInitializer implements Declarable {
 						.setStartPort(receiverStartPort)
 						.setEndPort(receiverEndPort).create();
 
-				receiver.start();
+				if(!receiver.isRunning()) {
+					receiver.start();
+				}
 				log.info("StartupConductor: startup sequence is complete");
 
 			} catch (Exception x) {
